@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>김지민 | 홈페이지</title>
+  <style>
+    /* ===== 공통 (타입 선택자) ===== */
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 64px; /* 고정 메뉴에 가려지지 않도록 */
+    }
+
+    body {
+      margin: 0;
+      font-family: "Pretendard", "Noto Sans KR", "Malgun Gothic", sans-serif;
+      font-size: 1rem;
+      line-height: 1.7;
+      color: #2b2d42;
+      background: #f6f7fb;
+    }
+
+    h1, h2, h3 {
+      line-height: 1.3;
+      margin: 0 0 0.6em;
+      color: #1d2342;
+    }
+    h1 { font-size: 2.8rem; }
+    h2 { font-size: 1.6rem; padding-bottom: 0.4em; border-bottom: 3px solid #5b6cff; display: inline-block; }
+    h3 { font-size: 1.2rem; }
+
+    p { margin: 0 0 0.8em; }
+    ul { margin: 0; padding-left: 1.2em; }
+    a { color: #5b6cff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ===== 머리말 (첫 화면) ===== */
+    #site-header {
+      padding: 96px 24px 72px;
+      text-align: center;
+      color: #fff;
+      background: linear-gradient(135deg, #5b6cff, #8e5bff);
+    }
+    #site-header h1 { color: #fff; margin-bottom: 0.3em; }
+    #site-header p { font-size: 1.3rem; margin: 0; opacity: 0.95; }
+
+    /* ===== 메뉴 ===== */
+    #site-nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    #site-nav ul {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      list-style: none;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+    #site-nav a {
+      display: block;
+      padding: 18px 16px;
+      color: #2b2d42;
+      font-weight: 600;
+    }
+    #site-nav a:hover { color: #5b6cff; text-decoration: none; }
+
+    /* ===== 본문 ===== */
+    #site-main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 24px 48px;
+    }
+    #site-main > section {
+      background: #fff;
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 10px rgba(30, 40, 90, 0.06);
+    }
+
+    /* 영역별 id 선택자 */
+    #section-interests ul { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+    #section-interests li {
+      padding: 8px 18px;
+      border-radius: 999px;
+      background: #eef0ff;
+      color: #3d4bd8;
+      font-weight: 600;
+    }
+
+    /* ===== 프로젝트 (class 선택자) ===== */
+    .project-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+    .project-item {
+      padding: 24px;
+      border: 1px solid #e3e6f5;
+      border-radius: 12px;
+      background: #fafbff;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .project-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(91, 108, 255, 0.15);
+    }
+    .project-item a { font-weight: 600; }
+
+    /* ===== 제작 정보 ===== */
+    #site-footer {
+      padding: 32px 24px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #cfd3f5;
+      background: #1d2342;
+    }
+    #site-footer p { margin: 0.2em 0; }
+    #site-footer a { color: #fff; }
+
+    /* ===== 반응형: 태블릿 ===== */
+    @media (max-width: 768px) {
+      h1 { font-size: 2.2rem; }
+      #site-header { padding: 72px 20px 56px; }
+      #site-main { padding: 24px 16px 32px; }
+      #site-main > section { padding: 24px; }
+      .project-list { grid-template-columns: 1fr; }
+    }
+
+    /* ===== 반응형: 스마트폰 ===== */
+    @media (max-width: 480px) {
+      h1 { font-size: 1.9rem; }
+      #site-header p { font-size: 1.1rem; }
+      #site-nav ul { gap: 0; padding: 0 4px; }
+      #site-nav a { padding: 14px 10px; font-size: 0.9rem; }
+      html { scroll-padding-top: 52px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- [site-header] 이름 + 소개 문구 -->
+  <header id="site-header">
+    <h1>김지민</h1>
+    <p>공주대학교 한문교육과 재학생</p>
+  </header>
+
+  <!-- [site-nav] 본문 영역 이동 메뉴 -->
+  <nav id="site-nav">
+    <ul>
+      <li><a href="#section-intro">소개</a></li>
+      <li><a href="#section-interests">관심사</a></li>
+      <li><a href="#section-activities">주요 활동</a></li>
+      <li><a href="#section-projects">프로젝트</a></li>
+    </ul>
+  </nav>
+
+  <!-- [site-main] 주요 본문 -->
+  <main id="site-main">
+
+    <!-- [section-intro] 소개 -->
+    <section id="section-intro">
+      <h2>소개</h2>
+      <p>이름: 김지민</p>
+      <p>이메일: <a href="mailto:alina0211@naver.com">alina0211@naver.com</a></p>
+      <p>공주대학교 한문교육과 재학생</p>
+    </section>
+
+    <!-- [section-interests] 관심사 -->
+    <section id="section-interests">
+      <h2>관심사</h2>
+      <ul>
+        <li>독서</li>
+        <li>방탈출</li>
+        <li>노래 듣기</li>
+        <li>드라마 보기</li>
+      </ul>
+    </section>
+
+    <!-- [section-activities] 주요 활동 -->
+    <section id="section-activities">
+      <h2>주요 활동</h2>
+      <p>문헌정보교육과를 복수전공 하며 임용고시 준비하고 있어요.</p>
+    </section>
+
+    <!-- [section-projects] 프로젝트 -->
+    <section id="section-projects">
+      <h2>프로젝트</h2>
+      <div class="project-list">
+
+        <!-- [project-todo] 프로젝트 1 -->
+        <article id="project-todo" class="project-item">
+          <h3>오늘의 할 일 관리</h3>
+          <p>하루의 할 일을 관리하는 프로젝트입니다.</p>
+          <a href="#">결과물 보기 →</a><!-- 실제 링크로 교체 -->
+        </article>
+
+        <!-- 프로젝트 추가 시 위 article을 복사해 id만 변경 -->
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- [site-footer] 제작 정보 -->
+  <footer id="site-footer">
+    <p>제작: 김지민</p>
+    <p>문의: <a href="mailto:alina0211@naver.com">alina0211@naver.com</a></p>
+  </footer>
+
+</body>
+</html>
