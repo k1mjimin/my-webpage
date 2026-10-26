@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>전자도장/인장 생성기 Pro - 교사 및 행정서무용</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts for Free Commercial Korean Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Dongle:wght@400;700&family=East+Sea+Dokdo&family=Gowun+Batang:wght@400;700&family=Nanum+Brush+Script&family=Nanum+Gothic:wght@400;700;800&family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Serif+KR:wght@400;600;700;900&family=Song+Myung&family=Sunflower:wght@500;700&family=Yeon+Sung&display=swap" rel="stylesheet">
+
+    <style>
+        /* Font Utility Classes */
+        .font-myeongjo { font-family: 'Nanum Myeongjo', serif; }
+        .font-noto-serif { font-family: 'Noto Serif KR', serif; }
+        .font-gowun { font-family: 'Gowun Batang', serif; }
+        .font-songmyung { font-family: 'Song Myung', serif; }
+        .font-dokdo { font-family: 'East Sea Dokdo', cursive; }
+        .font-brush { font-family: 'Nanum Brush Script', cursive; }
+        .font-yeonsung { font-family: 'Yeon Sung', cursive; }
+        .font-dohyeon { font-family: 'Do Hyeon', sans-serif; }
+        .font-blackhan { font-family: 'Black Han Sans', sans-serif; }
+        .font-sunflower { font-family: 'Sunflower', sans-serif; }
+        .font-dongle { font-family: 'Dongle', sans-serif; }
+
+        /* Transparent Checkerboard Pattern for Canvas Background Preview */
+        .checkerboard-pattern {
+            background-color: #ffffff;
+            background-image: 
+                linear-gradient(45deg, #e2e8f0 25%, transparent 25%), 
+                linear-gradient(-45deg, #e2e8f0 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #e2e8f0 75%), 
+                linear-gradient(-45deg, transparent 75%, #e2e8f0 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+
+        /* Custom Scrollbar for Smooth Touch UI */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Toast Animation */
+        @keyframes toastFadeInOut {
+            0% { opacity: 0; transform: translate(-50%, 20px) scale(0.95); }
+            15% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+            85% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -10px) scale(0.95); }
+        }
+        .animate-toast {
+            animation: toastFadeInOut 2.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans select-none antialiased">
+
+    <!-- Top Header -->
+    <header class="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2.5">
+                <div class="w-9 h-9 bg-red-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-md ring-2 ring-red-100">
+                    印
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-none flex items-center gap-2">
+                        전자도장 생성기 <span class="bg-red-50 text-red-600 border border-red-200 text-[10px] font-extrabold px-1.5 py-0.5 rounded-md">Pro</span>
+                    </h1>
+                    <p class="text-[11px] text-slate-500 mt-0.5 hidden sm:block">행정서류, 결재문서, 공문서용 투명 배경(PNG) 인장 제작</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <span class="text-xs text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200 hidden md:inline-flex items-center gap-1">
+                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i> 저작권 걱정 없는 라이선스
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace Layout -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5 pb-24 lg:pb-6">
+
+        <!-- LEFT/TOP: Live Canvas Visualizer Card -->
+        <section class="lg:col-span-5 flex flex-col gap-4">
+            <div class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-center sticky top-20">
+                <div class="w-full flex items-center justify-between mb-3 text-xs text-slate-500">
+                    <span class="font-bold text-slate-700 flex items-center gap-1.5">
+                        <i data-lucide="eye" class="w-4 h-4 text-red-600"></i> 실시간 도장 미리보기
+                    </span>
+                    <span class="bg-emerald-50 text-emerald-700 text-[11px] font-semibold px-2 py-0.5 rounded border border-emerald-200">
+                        투명 PNG 지원
+                    </span>
+                </div>
+
+                <!-- Canvas Wrapper with Responsive Sizing -->
+                <div class="w-full max-w-[320px] sm:max-w-[380px] aspect-square checkerboard-pattern rounded-2xl border-2 border-dashed border-slate-300 p-4 flex items-center justify-center shadow-inner relative group transition-all duration-200">
+                    <canvas id="stampCanvas" width="800" height="800" class="w-full h-full object-contain drop-shadow-md transition-transform duration-200 hover:scale-[1.02]"></canvas>
+                </div>
+
+                <p class="text-[11px] text-slate-400 mt-3 text-center">
+                    ※ 고해상도(800x800 DPI)로 생성되어 한글(HWP), MS 워드, PDF 문서 삽입 시 깨짐 없이 깨끗합니다.
+                </p>
+
+                <!-- Action Buttons for Desktop / Large Screens -->
+                <div class="w-full grid grid-cols-2 gap-2.5 mt-4 hidden lg:grid">
+                    <button onclick="copyToClipboard()" class="w-full bg-slate-800 hover:bg-slate-900 active:bg-black text-white font-medium text-xs sm:text-sm py-3 px-3 rounded-xl transition shadow flex items-center justify-center gap-2">
+                        <i data-lucide="copy" class="w-4 h-4"></i> 클립보드 복사
+                    </button>
+                    <button onclick="downloadPNG()" class="w-full bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-medium text-xs sm:text-sm py-3 px-3 rounded-xl transition shadow flex items-center justify-center gap-2">
+                        <i data-lucide="download" class="w-4 h-4"></i> PNG 저장하기
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT/BOTTOM: Options & Customization Controls -->
+        <section class="lg:col-span-7 space-y-4">
+            
+            <!-- Quick Preset Switcher -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i> 추천 도장 빠른 선택
+                </h3>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <button onclick="applyPreset('personal')" class="p-2 border border-slate-200 hover:border-red-500 hover:bg-red-50/50 rounded-xl text-left transition flex flex-col gap-0.5">
+                        <span class="text-xs font-bold text-slate-800">개인 결재인</span>
+                        <span class="text-[10px] text-slate-400">원형 • 양각 • 3~4자</span>
+                    </button>
+                    <button onclick="applyPreset('official')" class="p-2 border border-slate-200 hover:border-red-500 hover:bg-red-50/50 rounded-xl text-left transition flex flex-col gap-0.5">
+                        <span class="text-xs font-bold text-slate-800">직인 / 기관인</span>
+                        <span class="text-[10px] text-slate-400">정사각형 • 양각 • 4자</span>
+                    </button>
+                    <button onclick="applyPreset('embossed')" class="p-2 border border-slate-200 hover:border-red-500 hover:bg-red-50/50 rounded-xl text-left transition flex flex-col gap-0.5">
+                        <span class="text-xs font-bold text-slate-800">전각 / 음각인</span>
+                        <span class="text-[10px] text-slate-400">사각형 • 음각(반전)</span>
+                    </button>
+                    <button onclick="applyPreset('oval')" class="p-2 border border-slate-200 hover:border-red-500 hover:bg-red-50/50 rounded-xl text-left transition flex flex-col gap-0.5">
+                        <span class="text-xs font-bold text-slate-800">타원 성명인</span>
+                        <span class="text-[10px] text-slate-400">타원형 • 필기체</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Control Tabs / Panel -->
+            <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+                
+                <!-- 1. Text & Layout Section -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label for="nameInput" class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                            <i data-lucide="type" class="w-4 h-4 text-slate-500"></i> 도장 성명/문구 입력
+                        </label>
+                        <label class="inline-flex items-center text-xs text-slate-600 cursor-pointer select-none">
+                            <input type="checkbox" id="autoSuffix" checked onchange="updateStamp()" class="rounded border-slate-300 text-red-600 focus:ring-red-500 w-4 h-4 mr-1">
+                            '인(印)' 자동 추가
+                        </label>
+                    </div>
+
+                    <div class="relative">
+                        <input type="text" id="nameInput" value="홍길동" maxlength="8" placeholder="예: 홍길동 또는 교무부장인" 
+                               class="w-full pl-3.5 pr-24 py-2.5 text-base sm:text-lg font-bold border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
+                               oninput="updateStamp()">
+                        <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                            <button onclick="clearText()" class="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 text-xs">
+                                <i data-lucide="x" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Layout Selector -->
+                    <div>
+                        <span class="block text-[11px] font-semibold text-slate-500 mb-1.5">글자 배열 방식</span>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="layoutMode" value="autoGrid" checked onchange="updateStamp()" class="peer sr-only">
+                                <div class="p-2 border rounded-xl text-center text-xs font-medium border-slate-200 peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-700 hover:bg-slate-50 transition">
+                                    전통 2x2 배치 <span class="text-[9px] block text-slate-400">(오른쪽→왼쪽)</span>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="layoutMode" value="vertical" onchange="updateStamp()" class="peer sr-only">
+                                <div class="p-2 border rounded-xl text-center text-xs font-medium border-slate-200 peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-700 hover:bg-slate-50 transition">
+                                    세로 정렬
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="layoutMode" value="horizontal" onchange="updateStamp()" class="peer sr-only">
+                                <div class="p-2 border rounded-xl text-center text-xs font-medium border-slate-200 peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-700 hover:bg-slate-50 transition">
+                                    가로 정렬
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="layoutMode" value="singleLine" onchange="updateStamp()" class="peer sr-only">
+                                <div class="p-2 border rounded-xl text-center text-xs font-medium border-slate-200 peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-700 hover:bg-slate-50 transition">
+                                    1줄 축소 자동
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-slate-100">
+
+                <!-- 2. Font Selection Grid -->
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                        <i data-lucide="pen-tool" class="w-4 h-4 text-slate-500"></i> 서체(글씨체) 선택 <span class="text-[10px] font-normal text-slate-400">(상업적 자유 이용 폰트)</span>
+                    </label>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto p-1 border border-slate-100 rounded-xl bg-slate-50/50">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="fontFamily" value="'Nanum Myeongjo', serif" checked onchange="updateStamp()" class="peer sr-only">
+                            <div class="p-2.5 border rounded-xl text-center border-slate-200 bg-white peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-700 hover:bg-slate-50 transition">
+                                <span class="text-xs font-bold font-myeongjo block">나눔명조</span>
+                                <span class="text-[9px] text-slate-400">정통 인장 명조체</span>
+                            </div>
+                        </label>
+
+                        <label class="cursor-pointer">
+                            <input type="radio" name="fontFamily" value="'Gowun Batang', serif" onchange="updateStamp()" class="peer sr-only">
+                            <div class="p-2.5 border rounded-xl text-center border-slate-200 bg-white peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-700 hover:bg-slate-50 transition">
+                                <span class="text-xs font-bold font-gowun block">고운바탕</span>
+                                <span class="text-[9px] text-slate-400">단정한 바탕체</span>
+                            </div>
+                        </label>
+
+                        <label class="cursor-pointer">
+                            <input type="radio" name="fontFamily" value="'Noto Serif KR', serif" onchange="updateStamp()" class="peer sr-only">
+                            <div class="p-2.5 border rounded-xl text-center border-slate-200 bg-white peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-700 hover:bg-slate-50 transition">
+                                <span class="text-xs font-bold font-noto-serif block">노토바탕</span>
+                                <span class="text-[9px] text-slate-400">묵직한 세리프</span>
+                            </div>
+                        </label>
+
+                        <label class="cursor-pointer">
+                            <input type="radio" name="fontFamily" value="'Song Myung', serif" onchange="updateStamp()" class="peer sr-only">
+                            <div class="p-2.5 border rounded-xl text-center border-slate-200 bg-white peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-700 hover:bg-slate-50 transition">
+                                <span class="text-xs font-bold font-songmyung block">송명체</span>
+                                <span class="text-[9px] text-slate-400">고풍스러운 목판체</span>
+                            </div>
+                        </label>
+
+                        <label class="cursor-pointer">
+                            <input type="radio" name="fontFamily" value="'East Sea Dokdo', cursive" onchange="updateStamp()" class="peer sr-only">
+                            <div class="p-2.5 border rounded-xl text-center border-slate-200 bg-white peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-700 hover:bg-slate-50 transition">
+                                <span class="text-xs font-bold font-dokdo block">독도체</span>
+                                <span class="text-[9px] text-slate-400">자연스러운 필기인</span>
+                            </div>
+                        </label>
+
+                        <label class="cursor-pointer">
+                            <input type="radio" name="fontFamily" value="'Nanum Brush Script', cursive" onchange="updateStamp()" class="peer sr-only">
+                            <div class="p-2.5 border rounded-xl text-center border-slate-200 bg-white peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-700 hover:bg-slate-50 transition">
+                                <span class="text-xs font-bold font-brush block">나눔붓체</span>
+                                <span class="text-[9px] text-slate-400">붓글씨 멋스러운 인</span>
+                            </div>
+                        </label>
+
+                        <label class="cursor-pointer">
+                            <input type="radio" name="fontFamily" value="'Yeon Sung', cursive" onchange="updateStamp()" class="peer sr-only">
+                            <div class="p-2.5 border rounded-xl text-center border-slate-200 bg-white peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-700 hover:bg-slate-50 transition">
+                                <span class="text-xs font-bold font-yeonsung block">연성체</span>
+                                <span class="text-[9px] text-slate-400">친근한 손글씨체</span>
+                            </div>
+                        </label>
+
+                        <label class="cursor-pointer">
+                            <input type="radio" name="fontFamily" value="'Do Hyeon', sans-serif" onchange="updateStamp()" class="peer sr-only">
+                            <div class="p-2.5 border rounded-xl text-center border-slate-200 bg-white peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-700 hover:bg-slate-50 transition">
+                                <span class="text-xs font-bold font-dohyeon block">도현체</span>
+                                <span class="text-[9px] text-slate-400">선명한 고딕체</span>
+                            </div>
+                        </label>
+
+                        <label class="cursor-pointer">
+                            <input type="radio" name="fontFamily" value="'Black Han Sans', sans-serif" onchange="updateStamp()" class="peer sr-only">
+                            <div class="p-2.5 border rounded-xl text-center border-slate-200 bg-white peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-700 hover:bg-slate-50 transition">
+                                <span class="text-xs font-bold font-blackhan block">검은고딕</span>
+                                <span class="text-[9px] text-slate-400">굵고 또렷한 직인용</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <hr class="border-slate-100">
+
+                <!-- 3. Shape & Relief Options -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Shape Selector -->
+                    <div>
+                        <label class="text-xs font-bold text-slate-700 block mb-1.5 flex items-center gap-1.5">
+                            <i data-lucide="shapes" class="w-4 h-4 text-slate-500"></i> 도장 외곽 모양
+                        </label>
+                        <select id="shapeSelect" onchange="updateStamp()" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:ring-2 focus:ring-red-500 outline-none">
+                            <option value="circle" selected>원형 (기본 성명인)</option>
+                            <option value="oval">타원형 (개인 서명인)</option>
+                            <option value="square">정사각형 (직인/기관인)</option>
+                            <option value="roundedSquare">모서리 둥근 사각형</option>
+                            <option value="rect">직사각형 (가로/세로 확장)</option>
+                        </select>
+                    </div>
+
+                    <!-- Relief Style (양각/음각) -->
+                    <div>
+                        <label class="text-xs font-bold text-slate-700 block mb-1.5 flex items-center gap-1.5">
+                            <i data-lucide="sun-moon" class="w-4 h-4 text-slate-500"></i> 음양 기법 (음각/양각)
+                        </label>
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="stampStyle" value="yang" checked onchange="updateStamp()" class="peer sr-only">
+                                <div class="p-2 border rounded-xl text-center text-xs font-medium border-slate-200 peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-700 hover:bg-slate-50 transition">
+                                    양각 (글자 빨강)
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="stampStyle" value="eum" onchange="updateStamp()" class="peer sr-only">
+                                <div class="p-2 border rounded-xl text-center text-xs font-medium border-slate-200 peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-700 hover:bg-slate-50 transition">
+                                    음각 (배경 빨강)
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-slate-100">
+
+                <!-- 4. Border, Texture & Sliders -->
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Border Width Slider -->
+                        <div>
+                            <div class="flex justify-between items-center text-xs mb-1">
+                                <span class="font-semibold text-slate-700">테두리 두께</span>
+                                <span id="borderVal" class="text-slate-400 font-mono">18px</span>
+                            </div>
+                            <input type="range" id="borderWidth" min="4" max="45" value="18" oninput="updateStamp()" class="w-full accent-red-600 cursor-pointer">
+                        </div>
+
+                        <!-- Inner Double Border Switch -->
+                        <div class="flex items-center justify-between pt-2">
+                            <div>
+                                <span class="text-xs font-semibold text-slate-700 block">이중 테두리(이중선)</span>
+                                <span class="text-[10px] text-slate-400">안쪽에 얇은 선 추가</span>
+                            </div>
+                            <input type="checkbox" id="doubleBorder" onchange="updateStamp()" class="w-5 h-5 rounded border-slate-300 text-red-600 focus:ring-red-500 cursor-pointer">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Texture / Noise Slider -->
+                        <div>
+                            <div class="flex justify-between items-center text-xs mb-1">
+                                <span class="font-semibold text-slate-700">인감 질감 (빈티지 번짐 효과)</span>
+                                <span id="noiseVal" class="text-slate-400 font-mono">15%</span>
+                            </div>
+                            <input type="range" id="noiseLevel" min="0" max="50" value="15" oninput="updateStamp()" class="w-full accent-red-600 cursor-pointer">
+                        </div>
+
+                        <!-- Font Size Adjustment Slider -->
+                        <div>
+                            <div class="flex justify-between items-center text-xs mb-1">
+                                <span class="font-semibold text-slate-700">글자 크기 조절</span>
+                                <span id="fontSizeVal" class="text-slate-400 font-mono">100%</span>
+                            </div>
+                            <input type="range" id="fontSizeScale" min="70" max="130" value="100" oninput="updateStamp()" class="w-full accent-red-600 cursor-pointer">
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-slate-100">
+
+                <!-- 5. Ink Colors -->
+                <div>
+                    <label class="text-xs font-bold text-slate-700 block mb-2 flex items-center gap-1.5">
+                        <i data-lucide="palette" class="w-4 h-4 text-slate-500"></i> 인주 색상 선택
+                    </label>
+                    <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-2">
+                            <!-- Preset Red 1 (Classic) -->
+                            <button onclick="setInkColor('#cc1111')" class="w-7 h-7 rounded-full bg-[#cc1111] ring-2 ring-offset-2 ring-transparent focus:ring-slate-400 transition transform active:scale-90" title="전통 인주"></button>
+                            <!-- Preset Red 2 (Bright Crimson) -->
+                            <button onclick="setInkColor('#e11d48')" class="w-7 h-7 rounded-full bg-[#e11d48] ring-2 ring-offset-2 ring-transparent focus:ring-slate-400 transition transform active:scale-90" title="밝은 선홍색"></button>
+                            <!-- Preset Red 3 (Vermilion) -->
+                            <button onclick="setInkColor('#dc2626')" class="w-7 h-7 rounded-full bg-[#dc2626] ring-2 ring-offset-2 ring-transparent focus:ring-slate-400 transition transform active:scale-90" title="다홍색"></button>
+                            <!-- Preset Red 4 (Dark Burgundy) -->
+                            <button onclick="setInkColor('#881337')" class="w-7 h-7 rounded-full bg-[#881337] ring-2 ring-offset-2 ring-transparent focus:ring-slate-400 transition transform active:scale-90" title="진한 버건디"></button>
+                            <!-- Preset Black (Black Ink) -->
+                            <button onclick="setInkColor('#1e293b')" class="w-7 h-7 rounded-full bg-[#1e293b] ring-2 ring-offset-2 ring-transparent focus:ring-slate-400 transition transform active:scale-90" title="검은 먹색"></button>
+                        </div>
+                        <div class="h-5 w-[1px] bg-slate-200"></div>
+                        <!-- Custom Color Picker -->
+                        <div class="flex items-center gap-1.5 text-xs text-slate-500">
+                            <input type="color" id="customColor" value="#cc1111" onchange="updateStamp()" class="w-7 h-7 rounded cursor-pointer border-0 p-0 bg-transparent">
+                            <span>직접 선택</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Sticky Bottom Action Bar for Mobile Devices -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-3 z-40 lg:hidden shadow-lg">
+        <div class="max-w-md mx-auto grid grid-cols-2 gap-2.5">
+            <button onclick="copyToClipboard()" class="w-full bg-slate-800 active:bg-black text-white font-bold text-xs py-3 px-3 rounded-xl transition flex items-center justify-center gap-1.5">
+                <i data-lucide="copy" class="w-4 h-4"></i> 클립보드 복사
+            </button>
+            <button onclick="downloadPNG()" class="w-full bg-red-600 active:bg-red-700 text-white font-bold text-xs py-3 px-3 rounded-xl transition shadow flex items-center justify-center gap-1.5">
+                <i data-lucide="download" class="w-4 h-4"></i> PNG 이미지 저장
+            </button>
+        </div>
+    </div>
+
+    <!-- Dynamic Toast Notification Container -->
+    <div id="toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 pointer-events-none hidden">
+        <div class="bg-slate-900/90 text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-xl backdrop-blur-sm flex items-center gap-2">
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+            <span id="toastMsg">클립보드에 도장 이미지가 복사되었습니다.</span>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Canvas context reference
+        const canvas = document.getElementById('stampCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Font Load Readiness Guarantee
+        document.fonts.ready.then(() => {
+            updateStamp();
+        });
+
+        // Main Rendering Logic
+        function updateStamp() {
+            // Read all Form State
+            let name = document.getElementById('nameInput').value.trim();
+            const autoSuffix = document.getElementById('autoSuffix').checked;
+
+            if (!name) name = "홍길동";
+
+            // Automatically add '인(印)' suffix if checked and name length is suitable
+            if (autoSuffix && name.length >= 1 && name.length <= 3 && !name.endsWith('인') && !name.endsWith('章')) {
+                name += '인';
+            }
+
+            const fontFamily = document.querySelector('input[name="fontFamily"]:checked').value;
+            const layoutMode = document.querySelector('input[name="layoutMode"]:checked').value;
+            const shape = document.getElementById('shapeSelect').value;
+            const stampStyle = document.querySelector('input[name="stampStyle"]:checked').value;
+            const borderWidth = parseInt(document.getElementById('borderWidth').value, 10);
+            const doubleBorder = document.getElementById('doubleBorder').checked;
+            const noiseLevel = parseInt(document.getElementById('noiseLevel').value, 10);
+            const fontSizeScale = parseInt(document.getElementById('fontSizeScale').value, 10) / 100;
+            const inkColor = document.getElementById('customColor').value;
+
+            // UI Label updates
+            document.getElementById('borderVal').innerText = borderWidth + 'px';
+            document.getElementById('noiseVal').innerText = noiseLevel + '%';
+            document.getElementById('fontSizeVal').innerText = Math.round(fontSizeScale * 100) + '%';
+
+            // Clear Canvas completely (Transparent background)
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const w = canvas.width;
+            const h = canvas.height;
+            const centerX = w / 2;
+            const centerY = h / 2;
+
+            // Prepare Draw Context
+            ctx.save();
+            ctx.fillStyle = inkColor;
+            ctx.strokeStyle = inkColor;
+            ctx.lineWidth = borderWidth;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            // 1. Draw Outer Shape & Clipping mask for Eum-gak (음각)
+            let innerBounds = { x: 40, y: 40, w: w - 80, h: h - 80 };
+
+            ctx.beginPath();
+            if (shape === 'circle') {
+                const radius = (w / 2) - borderWidth - 30;
+                ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            } else if (shape === 'oval') {
+                const rx = (w / 2) - borderWidth - 40;
+                const ry = (h / 2) - borderWidth - 80;
+                ctx.ellipse(centerX, centerY, rx, ry, 0, 0, Math.PI * 2);
+            } else if (shape === 'square') {
+                const size = w - (borderWidth * 2) - 80;
+                const left = (w - size) / 2;
+                const top = (h - size) / 2;
+                ctx.rect(left, top, size, size);
+            } else if (shape === 'roundedSquare') {
+                const size = w - (borderWidth * 2) - 80;
+                const left = (w - size) / 2;
+                const top = (h - size) / 2;
+                const r = 60;
+                ctx.roundRect(left, top, size, size, r);
+            } else if (shape === 'rect') {
+                const rw = w - (borderWidth * 2) - 60;
+                const rh = h - (borderWidth * 2) - 140;
+                const left = (w - rw) / 2;
+                const top = (h - rh) / 2;
+                ctx.rect(left, top, rw, rh);
+            }
+
+            if (stampStyle === 'yang') {
+                // Yang-gak (양각): Stroke Outer Border
+                ctx.stroke();
+
+                // Draw Double Inner Line if enabled
+                if (doubleBorder) {
+                    ctx.save();
+                    ctx.lineWidth = Math.max(3, borderWidth / 4);
+                    ctx.beginPath();
+                    if (shape === 'circle') {
+                        ctx.arc(centerX, centerY, (w / 2) - borderWidth - 48, 0, Math.PI * 2);
+                    } else if (shape === 'square' || shape === 'roundedSquare') {
+                        const size = w - (borderWidth * 2) - 110;
+                        ctx.rect((w - size) / 2, (h - size) / 2, size, size);
+                    }
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
+            } else {
+                // Eum-gak (음각): Fill Entire Inner Background
+                ctx.fill();
+            }
+
+            // 2. Render Text
+            ctx.fillStyle = (stampStyle === 'yang') ? inkColor : '#ffffff';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            drawStampText(ctx, name, layoutMode, fontFamily, centerX, centerY, w, h, fontSizeScale, stampStyle);
+
+            ctx.restore();
+
+            // 3. Apply Vintage Ink Erosion / Distress Noise Filter
+            if (noiseLevel > 0) {
+                applyInkDistressFilter(ctx, w, h, noiseLevel);
+            }
+        }
+
+        // Text Layout Rendering Function
+        function drawStampText(ctx, text, layoutMode, fontFamily, centerX, centerY, canvasW, canvasH, fontScale, stampStyle) {
+            const chars = text.split('');
+            const len = chars.length;
+
+            ctx.font = `bold 100px ${fontFamily}`;
+
+            // Eum-gak requires global composite operation or inverse clipping for clean white characters
+            if (stampStyle === 'eum') {
+                ctx.globalCompositeOperation = 'destination-out';
+            }
+
+            // 2x2 Grid Traditional Mode (Top-Right -> Bottom-Right -> Top-Left -> Bottom-Left)
+            if (layoutMode === 'autoGrid' || (layoutMode === 'autoGrid' && len <= 4)) {
+                let gridChars = [...chars];
+
+                // If 3 characters, fill 4th slot with duplicated structure or standard layout
+                if (len === 3) {
+                    gridChars = [chars[0], chars[1], chars[2], '印'];
+                }
+
+                if (gridChars.length === 4) {
+                    const baseSize = 250 * fontScale;
+                    ctx.font = `900 ${baseSize}px ${fontFamily}`;
+
+                    const offsetX = canvasW * 0.20;
+                    const offsetY = canvasH * 0.21;
+
+                    // Traditional Korean/East-Asian Seal Order:
+                    // Pos 0: Top Right, Pos 1: Bottom Right, Pos 2: Top Left, Pos 3: Bottom Left
+                    const positions = [
+                        { x: centerX + offsetX, y: centerY - offsetY }, // 1st char
+                        { x: centerX + offsetX, y: centerY + offsetY }, // 2nd char
+                        { x: centerX - offsetX, y: centerY - offsetY }, // 3rd char
+                        { x: centerX - offsetX, y: centerY + offsetY }  // 4th char
+                    ];
+
+                    gridChars.slice(0, 4).forEach((ch, idx) => {
+                        ctx.fillText(ch, positions[idx].x, positions[idx].y);
+                    });
+                    return;
+                }
+            }
+
+            // Vertical Layout Mode
+            if (layoutMode === 'vertical') {
+                const baseSize = Math.min(260, (canvasH * 0.65) / len) * fontScale;
+                ctx.font = `bold ${baseSize}px ${fontFamily}`;
+                const totalHeight = len * baseSize * 0.95;
+                const startY = centerY - (totalHeight / 2) + (baseSize / 2);
+
+                chars.forEach((ch, idx) => {
+                    ctx.fillText(ch, centerX, startY + (idx * baseSize * 0.95));
+                });
+                return;
+            }
+
+            // Horizontal Layout Mode
+            if (layoutMode === 'horizontal') {
+                const baseSize = Math.min(240, (canvasW * 0.7) / len) * fontScale;
+                ctx.font = `bold ${baseSize}px ${fontFamily}`;
+                const totalWidth = len * baseSize * 0.9;
+                const startX = centerX - (totalWidth / 2) + (baseSize / 2);
+
+                chars.forEach((ch, idx) => {
+                    ctx.fillText(ch, startX + (idx * baseSize * 0.9), centerY);
+                });
+                return;
+            }
+
+            // Single Line / Auto Scaling
+            const baseSize = Math.min(280, (canvasW * 0.75) / len) * fontScale;
+            ctx.font = `bold ${baseSize}px ${fontFamily}`;
+            ctx.fillText(text, centerX, centerY);
+        }
+
+        // Realistic Vintage Ink Texture & Erosion Effect
+        function applyInkDistressFilter(ctx, width, height, intensity) {
+            const imgData = ctx.getImageData(0, 0, width, height);
+            const data = imgData.data;
+            const factor = intensity * 12;
+
+            for (let i = 0; i < data.length; i += 4) {
+                // If pixel is not completely transparent
+                if (data[i + 3] > 10) {
+                    // Random noise mask
+                    if (Math.random() * 100 < intensity) {
+                        data[i + 3] = Math.max(0, data[i + 3] - Math.random() * 220);
+                    }
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
+        }
+
+        // Preset Shortcut Setter
+        function applyPreset(presetKey) {
+            const nameInput = document.getElementById('nameInput');
+            const shapeSelect = document.getElementById('shapeSelect');
+            const borderWidth = document.getElementById('borderWidth');
+            const noiseLevel = document.getElementById('noiseLevel');
+
+            if (presetKey === 'personal') {
+                shapeSelect.value = 'circle';
+                borderWidth.value = 18;
+                noiseLevel.value = 12;
+                document.querySelector('input[name="stampStyle"][value="yang"]').checked = true;
+                document.querySelector('input[name="layoutMode"][value="autoGrid"]').checked = true;
+            } else if (presetKey === 'official') {
+                shapeSelect.value = 'square';
+                borderWidth.value = 24;
+                noiseLevel.value = 5;
+                document.querySelector('input[name="stampStyle"][value="yang"]').checked = true;
+                document.querySelector('input[name="layoutMode"][value="autoGrid"]').checked = true;
+            } else if (presetKey === 'embossed') {
+                shapeSelect.value = 'square';
+                borderWidth.value = 12;
+                noiseLevel.value = 20;
+                document.querySelector('input[name="stampStyle"][value="eum"]').checked = true;
+                document.querySelector('input[name="layoutMode"][value="autoGrid"]').checked = true;
+            } else if (presetKey === 'oval') {
+                shapeSelect.value = 'oval';
+                borderWidth.value = 16;
+                noiseLevel.value = 10;
+                document.querySelector('input[name="stampStyle"][value="yang"]').checked = true;
+                document.querySelector('input[name="layoutMode"][value="vertical"]').checked = true;
+            }
+
+            updateStamp();
+        }
+
+        // Color Quick Switcher
+        function setInkColor(hexColor) {
+            document.getElementById('customColor').value = hexColor;
+            updateStamp();
+        }
+
+        // Clear Text Helper
+        function clearText() {
+            document.getElementById('nameInput').value = '';
+            document.getElementById('nameInput').focus();
+            updateStamp();
+        }
+
+        // High Quality PNG Download Action
+        function downloadPNG() {
+            const name = document.getElementById('nameInput').value.trim() || "도장";
+            const link = document.createElement('a');
+            link.download = `${name}_전자도장_투명.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+
+            showToast('투명 PNG 도장 이미지가 다운로드되었습니다.');
+        }
+
+        // Clipboard Copy Action
+        async function copyToClipboard() {
+            try {
+                canvas.toBlob(async (blob) => {
+                    if (!blob) {
+                        showToast('이미지 생성에 실패했습니다.');
+                        return;
+                    }
+                    try {
+                        const item = new ClipboardItem({ 'image/png': blob });
+                        await navigator.clipboard.write([item]);
+                        showToast('클립보드에 복사되었습니다! (문서에 바로 Ctrl+V)');
+                    } catch (err) {
+                        // Fallback for browsers with restricted clipboard permission
+                        downloadPNG();
+                    }
+                }, 'image/png');
+            } catch (e) {
+                showToast('복사를 지원하지 않는 브라우저입니다. 저장 기능을 이용해주세요.');
+            }
+        }
+
+        // Toast Notification Helper
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            toastMsg.innerText = msg;
+            
+            toast.classList.remove('hidden');
+            toast.classList.remove('animate-toast');
+            
+            // Trigger reflow for re-animation
+            void toast.offsetWidth;
+            toast.classList.add('animate-toast');
+
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 2600);
+        }
+
+        // Initial render execution on DOM Ready
+        window.addEventListener('DOMContentLoaded', () => {
+            updateStamp();
+        });
+    </script>
+</body>
+</html>
