@@ -1,388 +1,219 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>오늘의 홈</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Hi+Melody&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --pink: #FFC9DA;
-    --pink-deep: #FF9FBF;
-    --mint: #BFEFDD;
-    --mint-deep: #8FDCC0;
-    --lav: #DCCCF5;
-    --cream: #FFFCF6;
-    --text: #5B4A52;
-    --text-soft: #8B7A82;
-    --shadow: rgba(255, 159, 191, 0.35);
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>김지민 | 홈페이지</title>
+  <style>
+    /* ===== 공통 (타입 선택자) ===== */
+    * { box-sizing: border-box; }
 
-  * { box-sizing: border-box; }
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 64px; /* 고정 메뉴에 가려지지 않도록 */
+    }
 
-  body{
-    margin:0;
-    min-height:100vh;
-    font-family:'Gaegu', sans-serif;
-    color:var(--text);
-    background:
-      radial-gradient(circle at 15% 20%, #FFE3EE 0%, transparent 45%),
-      radial-gradient(circle at 85% 15%, #DFF6ED 0%, transparent 45%),
-      radial-gradient(circle at 50% 90%, #EAE0FB 0%, transparent 50%),
-      #FFF7F3;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:32px 16px;
-    overflow-x:hidden;
-  }
+    body {
+      margin: 0;
+      font-family: "Pretendard", "Noto Sans KR", "Malgun Gothic", sans-serif;
+      font-size: 1rem;
+      line-height: 1.7;
+      color: #2b2d42;
+      background: #f6f7fb;
+    }
 
-  /* 둥둥 떠다니는 구름들 */
-  .cloud{
-    position:fixed;
-    background:#fff;
-    border-radius:50px;
-    opacity:0.7;
-    filter: drop-shadow(0 4px 8px rgba(200,180,220,0.25));
-    animation: float 8s ease-in-out infinite;
-  }
-  .cloud::before, .cloud::after{
-    content:"";
-    position:absolute;
-    background:#fff;
-    border-radius:50%;
-  }
-  .c1{ width:90px; height:32px; top:8%; left:8%; }
-  .c1::before{ width:50px; height:50px; top:-25px; left:10px; }
-  .c1::after{ width:36px; height:36px; top:-18px; left:50px; }
-  .c2{ width:70px; height:26px; top:75%; right:10%; animation-delay:2s; }
-  .c2::before{ width:38px; height:38px; top:-18px; left:8px; }
-  .c2::after{ width:28px; height:28px; top:-13px; left:38px; }
-  .c3{ width:60px; height:22px; top:15%; right:15%; animation-delay:4s; }
-  .c3::before{ width:32px; height:32px; top:-15px; left:6px; }
-  .c3::after{ width:24px; height:24px; top:-11px; left:32px; }
+    h1, h2, h3 {
+      line-height: 1.3;
+      margin: 0 0 0.6em;
+      color: #1d2342;
+    }
+    h1 { font-size: 2.8rem; }
+    h2 { font-size: 1.6rem; padding-bottom: 0.4em; border-bottom: 3px solid #5b6cff; display: inline-block; }
+    h3 { font-size: 1.2rem; }
 
-  @keyframes float{
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-12px); }
-  }
+    p { margin: 0 0 0.8em; }
+    ul { margin: 0; padding-left: 1.2em; }
+    a { color: #5b6cff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
 
-  .home{
-    position:relative;
-    z-index:1;
-    width:100%;
-    max-width:480px;
-    background:var(--cream);
-    border-radius:36px;
-    padding:36px 32px 32px;
-    box-shadow: 0 20px 45px var(--shadow), 0 2px 0 #fff inset;
-    border: 3px solid #fff;
-  }
+    /* ===== 머리말 (첫 화면) ===== */
+    #site-header {
+      padding: 96px 24px 72px;
+      text-align: center;
+      color: #fff;
+      background: linear-gradient(135deg, #5b6cff, #8e5bff);
+    }
+    #site-header h1 { color: #fff; margin-bottom: 0.3em; }
+    #site-header p { font-size: 1.3rem; margin: 0; opacity: 0.95; }
 
-  /* 날짜 시간 */
-  .clock-area{
-    text-align:center;
-    margin-bottom:28px;
-  }
-  .weather-emoji{
-    font-size:36px;
-    display:block;
-    margin-bottom:4px;
-  }
-  .time{
-    font-family:'Hi Melody', cursive;
-    font-size:52px;
-    color:var(--pink-deep);
-    line-height:1;
-    letter-spacing:1px;
-  }
-  .date{
-    margin-top:6px;
-    font-size:20px;
-    color:var(--text-soft);
-    background: var(--mint);
-    display:inline-block;
-    padding:4px 18px;
-    border-radius:20px;
-  }
+    /* ===== 메뉴 ===== */
+    #site-nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    #site-nav ul {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      list-style: none;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+    #site-nav a {
+      display: block;
+      padding: 18px 16px;
+      color: #2b2d42;
+      font-weight: 600;
+    }
+    #site-nav a:hover { color: #5b6cff; text-decoration: none; }
 
-  /* 검색창 */
-  .search-area{
-    margin-bottom:30px;
-  }
-  .search-box{
-    display:flex;
-    align-items:center;
-    background:#fff;
-    border:3px solid var(--lav);
-    border-radius:30px;
-    padding:6px 8px 6px 20px;
-    transition: border-color 0.2s, transform 0.15s;
-  }
-  .search-box:focus-within{
-    border-color: var(--pink-deep);
-    transform: scale(1.02);
-  }
-  .search-box input{
-    flex:1;
-    border:none;
-    outline:none;
-    background:transparent;
-    font-family:'Gaegu', sans-serif;
-    font-size:18px;
-    color:var(--text);
-    padding:8px 0;
-  }
-  .search-box input::placeholder{
-    color:#C9BEC5;
-  }
-  .search-box button{
-    border:none;
-    background: var(--pink);
-    color:#fff;
-    font-size:18px;
-    width:42px;
-    height:42px;
-    border-radius:50%;
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    transition: background 0.2s, transform 0.15s;
-    flex-shrink:0;
-  }
-  .search-box button:hover{
-    background: var(--pink-deep);
-    transform: rotate(-8deg) scale(1.08);
-  }
+    /* ===== 본문 ===== */
+    #site-main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 24px 48px;
+    }
+    #site-main > section {
+      background: #fff;
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 10px rgba(30, 40, 90, 0.06);
+    }
 
-  /* 할 일 */
-  .todo-area h2{
-    font-family:'Hi Melody', cursive;
-    font-size:24px;
-    margin:0 0 14px;
-    color:var(--text);
-    display:flex;
-    align-items:center;
-    gap:6px;
-  }
-  .todo-input-row{
-    display:flex;
-    gap:8px;
-    margin-bottom:14px;
-  }
-  .todo-input-row input{
-    flex:1;
-    border:2px solid #F0E4EA;
-    border-radius:16px;
-    padding:10px 16px;
-    font-family:'Gaegu', sans-serif;
-    font-size:16px;
-    outline:none;
-    background:#FFFDF9;
-  }
-  .todo-input-row input:focus{
-    border-color: var(--mint-deep);
-  }
-  .todo-input-row button{
-    border:none;
-    background: var(--mint-deep);
-    color:#fff;
-    width:44px;
-    border-radius:16px;
-    font-size:22px;
-    cursor:pointer;
-    transition: background 0.2s, transform 0.15s;
-  }
-  .todo-input-row button:hover{
-    background:#6FCBAB;
-    transform: scale(1.05);
-  }
+    /* 영역별 id 선택자 */
+    #section-interests ul { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+    #section-interests li {
+      padding: 8px 18px;
+      border-radius: 999px;
+      background: #eef0ff;
+      color: #3d4bd8;
+      font-weight: 600;
+    }
 
-  ul#todo-list{
-    list-style:none;
-    margin:0;
-    padding:0;
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-    max-height:240px;
-    overflow-y:auto;
-  }
-  ul#todo-list li{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    background:#fff;
-    border-radius:16px;
-    padding:10px 14px;
-    box-shadow: 0 2px 6px rgba(220,200,230,0.4);
-    font-size:17px;
-    animation: pop 0.25s ease;
-  }
-  @keyframes pop{
-    from{ transform: scale(0.9); opacity:0; }
-    to{ transform: scale(1); opacity:1; }
-  }
-  ul#todo-list li.done span.task-text{
-    text-decoration: line-through;
-    color:#C9BEC5;
-  }
-  ul#todo-list li input[type="checkbox"]{
-    width:20px;
-    height:20px;
-    accent-color: var(--pink-deep);
-    cursor:pointer;
-    flex-shrink:0;
-  }
-  ul#todo-list li span.task-text{
-    flex:1;
-    word-break: break-all;
-  }
-  ul#todo-list li button.del{
-    border:none;
-    background:transparent;
-    color:#E7B8C8;
-    font-size:18px;
-    cursor:pointer;
-    line-height:1;
-    padding:2px 4px;
-  }
-  ul#todo-list li button.del:hover{
-    color:var(--pink-deep);
-  }
-  .empty-msg{
-    text-align:center;
-    color:#C9BEC5;
-    font-size:16px;
-    padding:14px 0;
-  }
+    /* ===== 프로젝트 (class 선택자) ===== */
+    .project-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+    .project-item {
+      padding: 24px;
+      border: 1px solid #e3e6f5;
+      border-radius: 12px;
+      background: #fafbff;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .project-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(91, 108, 255, 0.15);
+    }
+    .project-item a { font-weight: 600; }
 
-  @media (prefers-reduced-motion: reduce){
-    .cloud, ul#todo-list li { animation: none; }
-  }
-</style>
+    /* ===== 제작 정보 ===== */
+    #site-footer {
+      padding: 32px 24px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #cfd3f5;
+      background: #1d2342;
+    }
+    #site-footer p { margin: 0.2em 0; }
+    #site-footer a { color: #fff; }
+
+    /* ===== 반응형: 태블릿 ===== */
+    @media (max-width: 768px) {
+      h1 { font-size: 2.2rem; }
+      #site-header { padding: 72px 20px 56px; }
+      #site-main { padding: 24px 16px 32px; }
+      #site-main > section { padding: 24px; }
+      .project-list { grid-template-columns: 1fr; }
+    }
+
+    /* ===== 반응형: 스마트폰 ===== */
+    @media (max-width: 480px) {
+      h1 { font-size: 1.9rem; }
+      #site-header p { font-size: 1.1rem; }
+      #site-nav ul { gap: 0; padding: 0 4px; }
+      #site-nav a { padding: 14px 10px; font-size: 0.9rem; }
+      html { scroll-padding-top: 52px; }
+    }
+  </style>
 </head>
 <body>
 
-  <div class="cloud c1"></div>
-  <div class="cloud c2"></div>
-  <div class="cloud c3"></div>
+  <!-- [site-header] 이름 + 소개 문구 -->
+  <header id="site-header">
+    <h1>김지민</h1>
+    <p>공주대학교 한문교육과 재학생</p>
+  </header>
 
-  <main class="home">
-    <section class="clock-area">
-      <span class="weather-emoji" id="emoji">🌸</span>
-      <div class="time" id="clock">00:00</div>
-      <div class="date" id="date">0000년 00월 00일</div>
+  <!-- [site-nav] 본문 영역 이동 메뉴 -->
+  <nav id="site-nav">
+    <ul>
+      <li><a href="#section-intro">소개</a></li>
+      <li><a href="#section-interests">관심사</a></li>
+      <li><a href="#section-activities">주요 활동</a></li>
+      <li><a href="#section-projects">프로젝트</a></li>
+    </ul>
+  </nav>
+
+  <!-- [site-main] 주요 본문 -->
+  <main id="site-main">
+
+    <!-- [section-intro] 소개 -->
+    <section id="section-intro">
+      <h2>소개</h2>
+      <p>이름: 김지민</p>
+      <p>이메일: <a href="mailto:alina0211@naver.com">alina0211@naver.com</a></p>
+      <p>공주대학교 한문교육과 재학생</p>
     </section>
 
-    <section class="search-area">
-      <form class="search-box" id="search-form">
-        <input type="text" id="search-input" placeholder="무엇이 궁금해요?" autocomplete="off">
-        <button type="submit" aria-label="검색">🔍</button>
-      </form>
+    <!-- [section-interests] 관심사 -->
+    <section id="section-interests">
+      <h2>관심사</h2>
+      <ul>
+        <li>독서</li>
+        <li>방탈출</li>
+        <li>노래 듣기</li>
+        <li>드라마 보기</li>
+      </ul>
     </section>
 
-    <section class="todo-area">
-      <h2>💌 오늘의 할 일</h2>
-      <div class="todo-input-row">
-        <input type="text" id="todo-input" placeholder="할 일을 적어주세요" autocomplete="off">
-        <button id="todo-add" aria-label="추가">+</button>
+    <!-- [section-activities] 주요 활동 -->
+    <section id="section-activities">
+      <h2>주요 활동</h2>
+      <p>문헌정보교육과를 복수전공 하며 임용고시 준비하고 있어요.</p>
+    </section>
+
+    <!-- [section-projects] 프로젝트 -->
+    <section id="section-projects">
+      <h2>프로젝트</h2>
+      <div class="project-list">
+
+        <!-- [project-todo] 프로젝트 1 -->
+        <article id="project-todo" class="project-item">
+          <h3>오늘의 할 일 관리</h3>
+          <p>하루의 할 일을 관리하는 프로젝트입니다.</p>
+          <a href="#">결과물 보기 →</a><!-- 실제 링크로 교체 -->
+        </article>
+
+        <!-- 프로젝트 추가 시 위 article을 복사해 id만 변경 -->
+
       </div>
-      <ul id="todo-list"></ul>
     </section>
+
   </main>
 
-<script>
-  // 시계 & 날짜
-  const clockEl = document.getElementById('clock');
-  const dateEl = document.getElementById('date');
-  const emojiEl = document.getElementById('emoji');
-  const days = ['일','월','화','수','목','금','토'];
+  <!-- [site-footer] 제작 정보 -->
+  <footer id="site-footer">
+    <p>제작: 김지민</p>
+    <p>문의: <a href="mailto:alina0211@naver.com">alina0211@naver.com</a></p>
+  </footer>
 
-  function updateClock(){
-    const now = new Date();
-    const hh = String(now.getHours()).padStart(2,'0');
-    const mm = String(now.getMinutes()).padStart(2,'0');
-    const ss = String(now.getSeconds()).padStart(2,'0');
-    clockEl.textContent = `${hh}:${mm}:${ss}`;
-    dateEl.textContent = `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 (${days[now.getDay()]})`;
-
-    const h = now.getHours();
-    emojiEl.textContent = h < 6 ? '🌙' : h < 11 ? '🌤️' : h < 17 ? '☀️' : h < 20 ? '🌇' : '🌙';
-  }
-  updateClock();
-  setInterval(updateClock, 1000);
-
-  // 구글 검색
-  document.getElementById('search-form').addEventListener('submit', function(e){
-    e.preventDefault();
-    const q = document.getElementById('search-input').value.trim();
-    if(q){
-      window.open('https://www.google.com/search?q=' + encodeURIComponent(q), '_blank');
-    }
-  });
-
-  // 할 일 목록
-  const todoList = document.getElementById('todo-list');
-  const todoInput = document.getElementById('todo-input');
-  const todoAdd = document.getElementById('todo-add');
-  let todos = [];
-
-  function renderTodos(){
-    todoList.innerHTML = '';
-    if(todos.length === 0){
-      const li = document.createElement('li');
-      li.style.boxShadow = 'none';
-      li.style.background = 'transparent';
-      li.innerHTML = '<span class="empty-msg" style="width:100%;">오늘은 어떤 하루를 보낼까요? 🌱</span>';
-      todoList.appendChild(li);
-      return;
-    }
-    todos.forEach((todo, idx) => {
-      const li = document.createElement('li');
-      if(todo.done) li.classList.add('done');
-      li.innerHTML = `
-        <input type="checkbox" ${todo.done ? 'checked' : ''} data-idx="${idx}">
-        <span class="task-text"></span>
-        <button class="del" data-idx="${idx}" aria-label="삭제">✕</button>
-      `;
-      li.querySelector('.task-text').textContent = todo.text;
-      todoList.appendChild(li);
-    });
-  }
-
-  function addTodo(){
-    const val = todoInput.value.trim();
-    if(!val) return;
-    todos.push({ text: val, done: false });
-    todoInput.value = '';
-    renderTodos();
-  }
-
-  todoAdd.addEventListener('click', addTodo);
-  todoInput.addEventListener('keydown', (e) => {
-    if(e.key === 'Enter'){
-      e.preventDefault();
-      addTodo();
-    }
-  });
-
-  todoList.addEventListener('click', (e) => {
-    if(e.target.matches('input[type="checkbox"]')){
-      const idx = Number(e.target.dataset.idx);
-      todos[idx].done = e.target.checked;
-      renderTodos();
-    }
-    if(e.target.matches('.del')){
-      const idx = Number(e.target.dataset.idx);
-      todos.splice(idx, 1);
-      renderTodos();
-    }
-  });
-
-  renderTodos();
-</script>
 </body>
 </html>
