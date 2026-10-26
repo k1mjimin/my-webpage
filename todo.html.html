@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>오늘의 할 일</title>
+<style>
+:root{
+  --bg:#f3f5f1; --surface:#ffffff; --ink:#1f2a24; --muted:#6b776f;
+  --line:#dbe1da; --accent:#2f6b4f; --accent-ink:#ffffff; --done:#9aa59d; --danger:#b3402f;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#161c18; --surface:#1f2722; --ink:#e8eee9; --muted:#97a39b;
+    --line:#33403a; --accent:#6fc79a; --accent-ink:#10231a; --done:#67726b; --danger:#e07a68;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.5}
+main{max-width:560px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:28px;margin:0 0 4px;letter-spacing:-.02em}
+.sub{color:var(--muted);margin:0 0 20px;font-size:14px}
+.datebar{display:flex;gap:8px;align-items:center;margin-bottom:16px}
+.datebar input[type=date]{flex:1}
+button,input{font:inherit;color:inherit}
+input[type=date],input[type=text]{background:var(--surface);border:1px solid var(--line);
+  border-radius:8px;padding:10px 12px;min-width:0}
+button{cursor:pointer;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:10px 14px}
+button:hover{border-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);
+  background:var(--surface);border-radius:10px;margin-bottom:16px}
+.stats div{padding:12px;text-align:center}
+.stats div+div{border-left:1px solid var(--line)}
+.stats b{display:block;font-size:26px;line-height:1.2}
+.stats span{font-size:13px;color:var(--muted)}
+.add{display:flex;gap:8px;margin-bottom:16px}
+.add input{flex:1}
+.tabs{display:flex;gap:6px;margin-bottom:10px}
+.tabs button{padding:6px 14px;border-radius:999px;font-size:14px}
+.tabs button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+ul{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+li{display:flex;align-items:center;gap:10px;padding:12px;border-top:1px solid var(--line)}
+li:first-child{border-top:0}
+li input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);flex:none}
+li .t{flex:1;word-break:break-word}
+li.done .t{text-decoration:line-through;color:var(--done)}
+li .edit{flex:1}
+li .acts{display:flex;gap:4px}
+li .acts button{padding:4px 10px;font-size:13px}
+li .del{color:var(--danger)}
+.empty{padding:28px 12px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:10px}
+.dates{margin-top:24px;font-size:13px;color:var(--muted)}
+.dates button{margin:4px 4px 0 0;padding:4px 10px;font-size:13px;border-radius:999px}
+</style>
+</head>
+<body>
+<main>
+  <h1>오늘의 할 일</h1>
+  <p class="sub" id="dateLabel"></p>
+
+  <div class="datebar">
+    <button id="prev" aria-label="이전 날짜">‹</button>
+    <input type="date" id="date" aria-label="날짜 선택">
+    <button id="next" aria-label="다음 날짜">›</button>
+    <button id="today">오늘</button>
+  </div>
+
+  <div class="stats" aria-live="polite">
+    <div><b id="nTotal">0</b><span>전체</span></div>
+    <div><b id="nDone">0</b><span>완료</span></div>
+    <div><b id="nLeft">0</b><span>남은 일</span></div>
+  </div>
+
+  <div class="add">
+    <input type="text" id="newText" placeholder="할 일을 입력하세요" maxlength="100" aria-label="새 할 일">
+    <button class="primary" id="addBtn">추가</button>
+  </div>
+
+  <div class="tabs" role="group" aria-label="목록 필터">
+    <button data-f="all" aria-pressed="true">전체</button>
+    <button data-f="active" aria-pressed="false">진행</button>
+    <button data-f="done" aria-pressed="false">완료</button>
+  </div>
+
+  <div id="list"></div>
+
+  <div class="dates" id="dates"></div>
+</main>
+
+<script>
+(function(){
+  var KEY = 'today-todo-v1';
+  var data = {};            // { 'YYYY-MM-DD': [{id, text, done}] }
+  var current = ymd(new Date());
+  var filter = 'all';
+  var editingId = null;
+
+  try { data = JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e){ data = {}; }
+
+  function save(){ try { localStorage.setItem(KEY, JSON.stringify(data)); } catch(e){} }
+  function pad(n){ return (n<10?'0':'')+n; }
+  function ymd(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+  function shift(s, n){ var p=s.split('-'); var d=new Date(+p[0],+p[1]-1,+p[2]+n); return ymd(d); }
+  function items(){ return data[current] || (data[current] = []); }
+
+  var $ = function(id){ return document.getElementById(id); };
+
+  function label(s){
+    var p=s.split('-'), d=new Date(+p[0],+p[1]-1,+p[2]);
+    var w=['일','월','화','수','목','금','토'][d.getDay()];
+    var t = s===ymd(new Date()) ? ' · 오늘' : '';
+    return p[0]+'년 '+(+p[1])+'월 '+(+p[2])+'일 ('+w+')'+t;
+  }
+
+  function render(){
+    var all = items();
+    var done = all.filter(function(t){return t.done;}).length;
+    $('nTotal').textContent = all.length;
+    $('nDone').textContent = done;
+    $('nLeft').textContent = all.length - done;
+    $('date').value = current;
+    $('dateLabel').textContent = label(current);
+
+    document.querySelectorAll('.tabs button').forEach(function(b){
+      b.setAttribute('aria-pressed', b.dataset.f===filter);
+    });
+
+    var shown = all.filter(function(t){
+      return filter==='all' || (filter==='done'?t.done:!t.done);
+    });
+    var box = $('list'); box.innerHTML='';
+    if(!shown.length){
+      var e=document.createElement('div'); e.className='empty';
+      e.textContent = all.length ? '이 목록에 해당하는 할 일이 없습니다.' : '아직 할 일이 없습니다. 위에서 추가해 보세요.';
+      box.appendChild(e);
+    } else {
+      var ul=document.createElement('ul');
+      shown.forEach(function(t){ ul.appendChild(row(t)); });
+      box.appendChild(ul);
+    }
+
+    // dates that have tasks
+    var keys = Object.keys(data).filter(function(k){return data[k].length;}).sort().reverse();
+    var dv = $('dates'); dv.innerHTML='';
+    if(keys.length){
+      dv.appendChild(document.createTextNode('할 일이 있는 날짜'));
+      dv.appendChild(document.createElement('br'));
+      keys.slice(0,14).forEach(function(k){
+        var b=document.createElement('button');
+        var d=data[k], dn=d.filter(function(x){return x.done;}).length;
+        b.textContent = k.slice(5).replace('-','/')+' ('+dn+'/'+d.length+')';
+        if(k===current) b.setAttribute('aria-current','date');
+        b.onclick=function(){ go(k); };
+        dv.appendChild(b);
+      });
+    }
+  }
+
+  function row(t){
+    var li=document.createElement('li'); if(t.done) li.className='done';
+    var cb=document.createElement('input'); cb.type='checkbox'; cb.checked=t.done;
+    cb.setAttribute('aria-label','완료 표시');
+    cb.onchange=function(){ t.done=cb.checked; save(); render(); };
+    li.appendChild(cb);
+
+    if(editingId===t.id){
+      var inp=document.createElement('input'); inp.type='text'; inp.className='edit'; inp.value=t.text; inp.maxLength=100;
+      inp.setAttribute('aria-label','할 일 수정');
+      var commit=function(){ var v=inp.value.trim(); if(v) t.text=v; editingId=null; save(); render(); };
+      inp.onkeydown=function(e){ if(e.key==='Enter') commit(); if(e.key==='Escape'){editingId=null; render();} };
+      li.appendChild(inp);
+      var acts=document.createElement('div'); acts.className='acts';
+      var ok=document.createElement('button'); ok.textContent='저장'; ok.onclick=commit;
+      var no=document.createElement('button'); no.textContent='취소'; no.onclick=function(){editingId=null;render();};
+      acts.appendChild(ok); acts.appendChild(no); li.appendChild(acts);
+      setTimeout(function(){ inp.focus(); inp.select(); },0);
+    } else {
+      var sp=document.createElement('span'); sp.className='t'; sp.textContent=t.text; li.appendChild(sp);
+      var a=document.createElement('div'); a.className='acts';
+      var ed=document.createElement('button'); ed.textContent='수정'; ed.onclick=function(){editingId=t.id;render();};
+      var dl=document.createElement('button'); dl.textContent='삭제'; dl.className='del';
+      dl.onclick=function(){ data[current]=items().filter(function(x){return x.id!==t.id;}); save(); render(); };
+      a.appendChild(ed); a.appendChild(dl); li.appendChild(a);
+    }
+    return li;
+  }
+
+  function add(){
+    var v=$('newText').value.trim(); if(!v) { $('newText').focus(); return; }
+    items().push({id:Date.now()+Math.random().toString(36).slice(2,6), text:v, done:false});
+    $('newText').value=''; save(); render(); $('newText').focus();
+  }
+  function go(s){ if(!s) return; current=s; editingId=null; render(); }
+
+  $('addBtn').onclick=add;
+  $('newText').onkeydown=function(e){ if(e.key==='Enter') add(); };
+  $('date').onchange=function(){ go(this.value); };
+  $('prev').onclick=function(){ go(shift(current,-1)); };
+  $('next').onclick=function(){ go(shift(current,1)); };
+  $('today').onclick=function(){ go(ymd(new Date())); };
+  document.querySelectorAll('.tabs button').forEach(function(b){
+    b.onclick=function(){ filter=b.dataset.f; render(); };
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
