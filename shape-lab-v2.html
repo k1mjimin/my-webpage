@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>도형 밀고 돌리고 뒤집기</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap">
+<style>
+:root{--paper:#eef3fb;--grid:#cbd8ee;--ink:#1f2a5a;--sub:#4b5a8c;--card:#fff;--line:#c3d0ea;--shape:#ffc93c;--edge:#12a594;--dot:#ff5c8a;--ok:#12805c;--bad:#c4372f;--btn:#1f2a5a;--btnt:#fff;--tipbg:#fff6d6;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#141a33;--grid:#26305a;--ink:#eaf0ff;--sub:#a9b6e6;--card:#1c2446;--line:#33407a;--edge:#3dd6c3;--dot:#ff7fa5;--ok:#58d9a6;--bad:#ff8a80;--btn:#eaf0ff;--btnt:#141a33;--tipbg:#3a3560}}
+:root[data-theme="dark"]{--paper:#141a33;--grid:#26305a;--ink:#eaf0ff;--sub:#a9b6e6;--card:#1c2446;--line:#33407a;--edge:#3dd6c3;--dot:#ff7fa5;--ok:#58d9a6;--bad:#ff8a80;--btn:#eaf0ff;--btnt:#141a33;--tipbg:#3a3560}
+html{scroll-padding-top:env(safe-area-inset-top,0px);color-scheme:light dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:17px;line-height:1.5}
+.wrap{max-width:980px;margin:0 auto;padding:16px}
+h1{font-family:"Jua","Apple SD Gothic Neo",sans-serif;font-weight:400;font-size:clamp(26px,5vw,38px);margin:0}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
+button,select{font:inherit;color:inherit}
+.tabs{display:flex;gap:4px;background:var(--card);border:2px solid var(--line);border-radius:999px;padding:4px;flex-wrap:wrap}
+.tab{border:0;background:transparent;padding:8px 16px;border-radius:999px;cursor:pointer;font-family:"Jua",sans-serif;font-size:17px}
+.tab[aria-pressed="true"]{background:var(--btn);color:var(--btnt)}
+:focus-visible{outline:3px solid var(--dot);outline-offset:2px}
+.picker{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.pick{width:76px;border:2px solid var(--line);background:var(--card);border-radius:14px;padding:6px 4px 4px;cursor:pointer;text-align:center;font-size:14px}
+.pick svg{width:44px;height:44px;display:block;margin:0 auto}
+.pick[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 3px 0 var(--ink)}
+.stages{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:14px}
+.stage{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:10px}
+.stage h2{margin:0 0 6px 4px;font-family:"Jua",sans-serif;font-weight:400;font-size:20px}
+.stage svg{display:block;width:100%;height:auto;max-height:50vh;border-radius:10px}
+.body{fill:var(--shape);stroke:var(--ink);stroke-width:4;stroke-linejoin:round}
+.edge{stroke:var(--edge);stroke-width:9;stroke-linecap:round}
+.dot{fill:var(--dot);stroke:var(--ink);stroke-width:2}
+.nomark .edge,.nomark .dot{display:none}
+.ghost polygon{fill:none;stroke:var(--sub);stroke-width:2.5;stroke-dasharray:6 6;opacity:.7}
+.axis{stroke:var(--sub);stroke-width:1.5;stroke-dasharray:5 5;opacity:.7}
+#me{transform-origin:0 0;transition:transform .5s cubic-bezier(.3,.8,.3,1),fill .3s}
+.tg{transform-origin:0 0}
+.ctrl{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}
+.grp{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:8px 10px;flex:1 1 150px}
+.grp b{display:block;font-family:"Jua",sans-serif;font-weight:400;font-size:16px;margin-bottom:4px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.act{min-height:50px;flex:1;border:0;border-radius:12px;background:var(--btn);color:var(--btnt);font-family:"Jua",sans-serif;font-size:17px;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.25);padding:0 12px}
+.act:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.25)}
+.act.alt{background:var(--card);color:var(--ink);border:2px solid var(--ink)}
+.act:disabled{opacity:.45}
+.push .act{min-width:48px;font-size:20px}
+#tip{background:var(--tipbg);border-radius:12px;padding:8px 12px;margin:8px 0;min-height:42px;font-size:16px}
+.panel{margin-top:12px;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:12px 14px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+#msg{font-family:"Jua",sans-serif;font-size:19px;min-height:28px;flex:1 1 260px}
+#msg.ok{color:var(--ok)}#msg.bad{color:var(--bad)}
+.score{font-size:15px;color:var(--sub)}
+#hist{font-size:15px;color:var(--sub);min-height:24px}
+#hist span{display:inline-block;background:var(--card);border:1.5px solid var(--line);border-radius:8px;padding:0 8px;margin:2px 3px 2px 0}
+.opts{display:flex;flex-wrap:wrap;gap:14px;align-items:center;font-size:15px;color:var(--sub);margin-top:6px}
+.opts select{background:var(--card);border:2px solid var(--line);border-radius:10px;padding:5px 8px}
+.opts label{display:flex;gap:6px;align-items:center}
+details{margin-top:10px;font-size:15px;color:var(--sub)}
+summary{cursor:pointer}
+.optg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:12px}
+.opt{border:3px solid var(--line);border-radius:16px;background:var(--card);padding:6px;cursor:pointer}
+.opt svg{display:block;width:100%;height:auto;border-radius:10px}
+.opt.ok{border-color:var(--ok)}.opt.no{border-color:var(--bad);opacity:.7}
+.refw{max-width:300px}
+.hide{display:none!important}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.shake{animation:shake .35s}
+@media (prefers-reduced-motion:reduce){#me{transition:none}.shake{animation:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<pattern id="grid" x="-150" y="-150" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0H0V30" fill="none" stroke="var(--grid)" stroke-width="1.5"/></pattern></defs></svg>
+<div class="wrap" id="app">
+<header>
+<h1>도형 밀고 돌리고 뒤집기</h1>
+<div class="tabs" role="group" aria-label="모드">
+<button class="tab" id="tPrac" aria-pressed="true">연습하기</button>
+<button class="tab" id="tDir" aria-pressed="false">방향 맞추기</button>
+<button class="tab" id="tFind" aria-pressed="false">같은 도형 찾기</button>
+</div>
+</header>
+
+<div class="picker" id="picker" role="group" aria-label="도형 고르기"></div>
+
+<div class="stages" id="stages">
+<div class="stage hide" id="tgtStage"><h2>목표 모양</h2>
+<svg viewBox="-150 -150 300 300" role="img" aria-label="목표 모양"><rect x="-150" y="-150" width="300" height="300" fill="url(#grid)"/><line class="axis" x1="0" y1="-150" x2="0" y2="150"/><line class="axis" x1="-150" y1="0" x2="150" y2="0"/><g class="tg" id="tgt"></g></svg></div>
+<div class="stage" id="meStage"><h2 id="meTitle">내 도형</h2>
+<svg viewBox="-150 -150 300 300" role="img" aria-label="움직일 도형"><rect x="-150" y="-150" width="300" height="300" fill="url(#grid)"/><line class="axis" x1="0" y1="-150" x2="0" y2="150"/><line class="axis" x1="-150" y1="0" x2="150" y2="0"/><g class="ghost" id="ghost"></g><g id="me"></g></svg></div>
+</div>
+
+<div id="findP" class="hide">
+<div class="stage refw"><h2>이 도형과 같은 것을 찾아요</h2>
+<svg viewBox="-150 -150 300 300" role="img" aria-label="기준 도형"><rect x="-150" y="-150" width="300" height="300" fill="url(#grid)"/><g id="ref"></g></svg></div>
+<p class="score">돌리거나 뒤집거나 색이 달라도 괜찮아요. 모양과 크기가 같은 도형을 골라요.</p>
+<div class="optg" id="optg"></div>
+</div>
+
+<div class="ctrl" id="ctrl">
+<div class="grp"><b>돌리기</b><div class="row"><button class="act" id="bCw">↻ 시계 방향</button><button class="act" id="bCcw">↺ 반시계</button></div></div>
+<div class="grp"><b>뒤집기</b><div class="row"><button class="act" id="bFx">↔ 좌우</button><button class="act" id="bFy">↕ 상하</button></div></div>
+<div class="grp push" id="gPush"><b>밀기</b><div class="row"><button class="act" id="bL" aria-label="왼쪽으로 밀기">←</button><button class="act" id="bU" aria-label="위쪽으로 밀기">↑</button><button class="act" id="bD" aria-label="아래쪽으로 밀기">↓</button><button class="act" id="bR" aria-label="오른쪽으로 밀기">→</button></div></div>
+<div class="grp"><b>그 밖에</b><div class="row"><button class="act" id="bColor">색 바꾸기</button><button class="act alt" id="bReset">처음으로</button></div></div>
+</div>
+
+<div id="tip" aria-live="polite">버튼을 눌러 도형을 움직여 보세요.</div>
+<div id="hist"></div>
+
+<div class="panel hide" id="panel">
+<div style="flex:1 1 260px"><div id="msg" role="status" aria-live="polite"></div><div class="score" id="score"></div></div>
+<div class="row" style="flex:0 0 auto">
+<label class="score hide" id="lvlL">난이도 <select id="lvl" style="background:var(--card);border:2px solid var(--line);border-radius:10px;padding:5px"><option value="0">쉬움: 돌리기</option><option value="1" selected>보통: 돌리기·뒤집기</option><option value="2">어려움: 밀기도 해요</option></select></label>
+<button class="act" id="bCheck" style="padding:0 22px">확인하기</button>
+<button class="act alt" id="bNext" style="padding:0 22px">새 문제</button>
+</div>
+</div>
+
+<details id="teach"><summary>교사용 설정</summary>
+<div class="opts">
+<label>돌리는 각도 <select id="step"><option value="90">90°</option><option value="72">72°</option><option value="60">60°</option><option value="45">45°</option><option value="30">30°</option><option value="15">15°</option></select></label>
+<label><input type="checkbox" id="markC" checked> 앞면 표시(초록 변·분홍 점) 보이기</label>
+<label id="ghostL"><input type="checkbox" id="ghostC" checked> 처음 위치 점선 보기</label>
+</div>
+</details>
+<p class="score" style="margin-top:12px">앞면 표시는 도형이 어디로 갔는지 알려 주는 스티커예요. 점선 십자는 뒤집는 기준이에요.</p>
+</div>
+
+<script>
+(function(){
+function reg(n,r){var a=[];for(var i=0;i<n;i++){var t=-Math.PI/2+i*2*Math.PI/n;a.push([r*Math.cos(t),r*Math.sin(t)])}return a}
+function ctr(p){var xs=p.map(function(q){return q[0]}),ys=p.map(function(q){return q[1]});var cx=(Math.min.apply(0,xs)+Math.max.apply(0,xs))/2,cy=(Math.min.apply(0,ys)+Math.max.apply(0,ys))/2;return p.map(function(q){return[q[0]-cx,q[1]-cy]})}
+var SH={
+sq:{n:'정사각형',p:[[-70,-70],[70,-70],[70,70],[-70,70]],st:90},
+L:{n:'ㄱ자 도형',p:ctr([[-70,-80],[-20,-80],[-20,20],[70,20],[70,70],[-70,70]]),st:90},
+rt:{n:'직각삼각형',p:ctr([[-60,-80],[-60,80],[90,80]]),st:90},
+tri:{n:'정삼각형',p:reg(3,100),st:60},
+pen:{n:'정오각형',p:reg(5,100),st:72},
+hex:{n:'정육각형',p:reg(6,95),st:60}
+};
+var COL=['#ffc93c','#ff8fab','#6bd0a8','#7ab6ff','#c3a1ff'];
+var S={shape:'sq',a:0,fx:1,fy:1,tx:0,ty:0,c:0},T=null,step=90,mode='prac',level=1,hist=[],tHist=[],solved=false,F=null,fDone=false,seen={};
+var sc={dir:[0,0],find:[0,0]};
+var $=function(i){return document.getElementById(i)};
+function rnd(n){return Math.floor(Math.random()*n)}
+function shuf(a){for(var i=a.length-1;i>0;i--){var j=rnd(i+1),t=a[i];a[i]=a[j];a[j]=t}return a}
+function pts(p){return p.map(function(q){return q[0].toFixed(1)+','+q[1].toFixed(1)}).join(' ')}
+function art(p){var m=[0,0];p.forEach(function(q){m[0]+=q[0]/p.length;m[1]+=q[1]/p.length});var d=[p[0][0]+(m[0]-p[0][0])*.3,p[0][1]+(m[1]-p[0][1])*.3];
+return '<polygon class="body" points="'+pts(p)+'"/><line class="edge" x1="'+p[0][0].toFixed(1)+'" y1="'+p[0][1].toFixed(1)+'" x2="'+p[1][0].toFixed(1)+'" y2="'+p[1][1].toFixed(1)+'"/><circle class="dot" cx="'+d[0].toFixed(1)+'" cy="'+d[1].toFixed(1)+'" r="9"/>'}
+function tf(s,norm){var a=norm?((s.a%360)+360)%360:s.a;return 'translate('+s.tx+'px,'+s.ty+'px) scale('+s.fx+','+s.fy+') rotate('+a+'deg)'}
+function mat(s){var r=s.a*Math.PI/180;return[s.fx*Math.cos(r),-s.fx*Math.sin(r),s.fy*Math.sin(r),s.fy*Math.cos(r)]}
+function matEq(s,t){var u=mat(s),v=mat(t);return u.every(function(x,i){return Math.abs(x-v[i])<.01})}
+function phi(s){return s.fx===1?s.a:s.a+180}
+var OPS={
+cw:{f:function(s){s.a+=step*s.fx*s.fy},l:function(){return'↻ 시계 방향 '+step+'°'}},
+ccw:{f:function(s){s.a-=step*s.fx*s.fy},l:function(){return'↺ 반시계 방향 '+step+'°'}},
+fx:{f:function(s){s.fx*=-1},l:function(){return'↔ 좌우 뒤집기'}},
+fy:{f:function(s){s.fy*=-1},l:function(){return'↕ 상하 뒤집기'}},
+L:{f:function(s){s.tx=Math.max(-60,s.tx-30)},l:function(){return'← 왼쪽 밀기'}},
+R:{f:function(s){s.tx=Math.min(60,s.tx+30)},l:function(){return'→ 오른쪽 밀기'}},
+U:{f:function(s){s.ty=Math.max(-60,s.ty-30)},l:function(){return'↑ 위쪽 밀기'}},
+D:{f:function(s){s.ty=Math.min(60,s.ty+30)},l:function(){return'↓ 아래쪽 밀기'}}};
+var TIPS={cw:'돌려도 모양과 크기는 그대로예요. 방향만 바뀌어요.',ccw:'시계 반대 방향으로도 돌릴 수 있어요.',fx:'오른쪽과 왼쪽이 바뀌어요. 거울에 비친 모양이에요.',fy:'위와 아래가 바뀌어요. 점선 가로줄이 거울이에요.',push:'밀면 자리만 바뀌어요. 방향과 모양은 그대로예요.',color:'색이 달라져도 같은 도형이에요.'};
+function tip(k){if(k&&seen[k])return;if(k){seen[k]=1;$('tip').textContent=TIPS[k]}}
+function applyOp(s,k,list){OPS[k].f(s);list.push(OPS[k].l())}
+function randRot(s,l){var k=1+rnd(Math.max(1,Math.floor(360/step)-1)),d=rnd(2)?'cw':'ccw';for(var i=0;i<k;i++)OPS[d].f(s);l.push((d==='cw'?'↻ 시계 방향 ':'↺ 반시계 방향 ')+(k*step)+'°')}
+function randFlip(s,l){applyOp(s,rnd(2)?'fx':'fy',l)}
+function randPush(s,l){var ks=['L','R','U','D'];applyOp(s,ks[rnd(4)],l);if(rnd(2))applyOp(s,ks[rnd(4)],l)}
+function msg(t,c){var m=$('msg');m.textContent=t;m.className=c||''}
+function scoreTxt(){var q=sc[mode];$('score').textContent='맞힌 문제 '+q[0]+'개 · 연속 '+q[1]+'번'}
+function draw(){var m=$('me');m.style.transform=tf(S);m.style.setProperty('--shape',COL[S.c]);
+$('hist').innerHTML=hist.length?'움직인 기록: '+hist.map(function(x){return'<span>'+x+'</span>'}).join(''):''}
+function resetMe(instant){S.a=0;S.fx=1;S.fy=1;S.tx=0;S.ty=0;hist=[];if(instant){var m=$('me');m.style.transition='none';draw();void m.getBoundingClientRect();m.style.transition=''}else draw()}
+function newQ(){var t,l,n=0;do{t={a:0,fx:1,fy:1,tx:0,ty:0,c:0};l=[];
+var seq=level===0?[randRot]:level===1?[randRot,randFlip]:[randRot,randFlip,randPush];if(level>0&&rnd(2))seq.reverse();
+seq.forEach(function(f){f(t,l)});t.a=((t.a%360)+360)%360;n++}while(matEq(t,{a:0,fx:1,fy:1})&&(level<2||(!t.tx&&!t.ty))&&n<50);
+T=t;tHist=l;T.c=1+rnd(4);S.c=0;solved=false;resetMe(true);
+var p=SH[S.shape].p;$('tgt').innerHTML=art(p);$('tgt').style.transform=tf(T,true);$('tgt').style.setProperty('--shape',COL[T.c]);
+msg('목표와 모양과 방향이 같게 만들어 보세요. 색은 달라도 괜찮아요.','');$('bCheck').disabled=false;scoreTxt()}
+function check(){if(solved)return;
+var dS=S.fx*S.fy,dT=T.fx*T.fy,posOk=level<2||(S.tx===T.tx&&S.ty===T.ty);
+if(matEq(S,T)&&posOk){solved=true;sc.dir[0]++;sc.dir[1]++;scoreTxt();$('bCheck').disabled=true;
+msg('정답이에요! 색은 달라도 모양과 방향이 같아서 같은 도형이에요. 한 가지 방법: '+tHist.join(' → '),'ok');return}
+sc.dir[1]=0;scoreTxt();var m;
+if(dS!==dT)m='거울에 비친 것처럼 반대로 놓여 있어요. 뒤집기가 필요해요.';
+else if(!matEq(S,T)){if(dS===1){var d=((phi(T)-phi(S))%360+360)%360;m='뒤집기는 잘했어요. 방향이 달라요. '+(d>180?'반시계':'시계')+' 방향으로 돌려 보세요.'}else m='뒤집기는 맞아요! 이제 돌려서 방향을 맞춰 보세요.'}
+else m='방향은 맞아요! 자리가 달라요. 밀어서 맞춰 보세요.';
+msg(m,'bad');var st=$('meStage');st.classList.remove('shake');void st.offsetWidth;st.classList.add('shake')}
+function gsvg(k,c,rot,flip,s){return '<svg viewBox="-150 -150 300 300"><rect x="-150" y="-150" width="300" height="300" fill="url(#grid)"/><g style="--shape:'+COL[c]+'" transform="scale('+(flip?-1:1)+',1) rotate('+rot+') scale('+s+')">'+art(SH[k].p)+'</g></svg>'}
+function newF(){var keys=Object.keys(SH),k=keys[rnd(6)],o=keys.filter(function(x){return x!==k}),k2=o[rnd(o.length)],c=shuf([0,1,2,3,4]);
+F={ref:{k:k,c:c[0]},opts:shuf([{k:k,c:c[1],rot:30*(1+rnd(11)),flip:rnd(2)===1,s:1,ok:1},{k:k2,c:c[2],rot:30*rnd(12),flip:rnd(2)===1,s:1,why:'shape'},{k:k,c:c[3],rot:30*rnd(12),flip:rnd(2)===1,s:rnd(2)?0.62:1.3,why:'size'}])};
+fDone=false;$('ref').innerHTML=art(SH[k].p);$('ref').style.setProperty('--shape',COL[c[0]]);
+$('optg').innerHTML='';F.opts.forEach(function(x,i){var b=document.createElement('button');b.className='opt';b.type='button';b.setAttribute('aria-label','보기 '+(i+1));b.innerHTML=gsvg(x.k,x.c,x.rot,x.flip,x.s);b.onclick=function(){pickF(i,b)};$('optg').appendChild(b)});
+msg('같은 도형을 골라 보세요.','');scoreTxt()}
+function pickF(i,b){if(fDone)return;var x=F.opts[i];fDone=true;var q=sc.find;
+if(x.ok){q[0]++;q[1]++;b.classList.add('ok');msg(x.flip?'맞아요! 뒤집어도 모양과 크기는 그대로라서 같은 도형이에요.':'맞아요! 돌리거나 색이 달라도 모양과 크기가 같으면 같은 도형이에요.','ok')}
+else{q[1]=0;b.classList.add('no');[].forEach.call($('optg').children,function(e,j){if(F.opts[j].ok)e.classList.add('ok')});
+msg(x.why==='shape'?'이 도형은 모양이 달라요. 초록 테두리가 같은 도형이에요.':'모양은 같지만 크기가 달라요. 크기가 다르면 같은 도형이 아니에요. 초록 테두리가 정답이에요.','bad')}
+scoreTxt()}
+function op(k){if(mode==='dir'&&solved)return;applyOp(S,k,hist);draw();tip(k==='cw'||k==='ccw'||k==='fx'||k==='fy'?k:'push')}
+[['bCw','cw'],['bCcw','ccw'],['bFx','fx'],['bFy','fy'],['bL','L'],['bR','R'],['bU','U'],['bD','D']].forEach(function(p){$(p[0]).onclick=function(){op(p[1])}});
+$('bColor').onclick=function(){S.c=(S.c+1)%5;draw();tip('color')};
+$('bReset').onclick=function(){if(mode==='dir'&&solved)return;resetMe(false);if(mode==='dir')msg('처음 모양으로 돌아왔어요.','')};
+$('bCheck').onclick=check;
+$('bNext').onclick=function(){mode==='find'?newF():newQ()};
+$('step').onchange=function(){step=+this.value;if(mode==='dir')newQ()};
+$('lvl').onchange=function(){level=+this.value;setVis();newQ()};
+$('ghostC').onchange=function(){$('ghost').style.display=this.checked?'':'none'};
+$('markC').onchange=function(){$('app').classList.toggle('nomark',!this.checked)};
+function setVis(){var p=mode==='prac',d=mode==='dir',f=mode==='find';
+$('tgtStage').classList.toggle('hide',!d);$('meStage').classList.toggle('hide',f);$('stages').classList.toggle('hide',f);
+$('findP').classList.toggle('hide',!f);$('ctrl').classList.toggle('hide',f);$('picker').classList.toggle('hide',f);
+$('panel').classList.toggle('hide',p);$('lvlL').classList.toggle('hide',!d);$('bCheck').classList.toggle('hide',!d);
+$('gPush').classList.toggle('hide',d&&level<2);$('bColor').classList.toggle('hide',!p);
+$('ghostL').classList.toggle('hide',!p);$('bNext').textContent=f?'다음 문제':'새 문제';
+$('ghost').style.display=(p&&$('ghostC').checked)?'':'none';
+$('app').classList.toggle('nomark',f||!$('markC').checked);
+$('meTitle').textContent=p?'내 도형 (마음대로 움직여 보세요)':'내 도형'}
+function setMode(m){mode=m;['tPrac','tDir','tFind'].forEach(function(id){$(id).setAttribute('aria-pressed',id==={prac:'tPrac',dir:'tDir',find:'tFind'}[m])});
+setVis();if(m==='dir'){newQ()}else if(m==='find'){newF()}else{S.c=0;resetMe(true);$('tip').textContent='버튼을 눌러 도형을 움직여 보세요.'}}
+$('tPrac').onclick=function(){setMode('prac')};$('tDir').onclick=function(){setMode('dir')};$('tFind').onclick=function(){setMode('find')};
+function setShape(k){S.shape=k;var p=SH[k].p;step=SH[k].st;$('step').value=step;$('me').innerHTML=art(p);$('ghost').innerHTML='<polygon points="'+pts(p)+'"/>';
+[].forEach.call($('picker').children,function(b){b.setAttribute('aria-pressed',b.dataset.k===k)});
+if(mode==='dir')newQ();else resetMe(true)}
+Object.keys(SH).forEach(function(k){var b=document.createElement('button');b.className='pick';b.dataset.k=k;b.type='button';
+b.innerHTML='<svg viewBox="-110 -110 220 220">'+art(SH[k].p)+'</svg>'+SH[k].n;b.onclick=function(){setShape(k)};$('picker').appendChild(b)});
+setShape('sq');setMode('prac');
+})();
+</script>
+</body>
+</html>
