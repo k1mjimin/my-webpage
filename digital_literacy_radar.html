@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>디지털 리터러시 역량 분석 및 평가</title>
+<style>
+:root{--blue:#3985e8;--red:#ed5555;--green:#16a36b;--ink:#263247;--muted:#68758a;--line:#e3e8ef;--bg:#f4f7fb;--card:#fff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif}
+main{max-width:1050px;margin:auto;padding:28px 18px 50px}
+header{text-align:center;padding:28px 12px 24px}
+.eyebrow{font-size:12px;letter-spacing:2px;color:var(--muted);font-weight:700}
+h1{font-size:clamp(27px,4vw,40px);line-height:1.3;margin:12px 0 8px;font-weight:900}
+header p{color:var(--muted);margin:0}.accent{width:65px;height:5px;border-radius:9px;background:#3985e8;margin:18px auto 0}
+.grid{display:grid;gap:14px}.stats{grid-template-columns:repeat(3,1fr);margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:18px;box-shadow:0 3px 12px #1d35570a}
+.stat{text-align:center}.label{font-size:12px;color:var(--muted)}.big{font-size:27px;font-weight:850;margin-top:5px;font-variant-numeric:tabular-nums}
+h2{font-size:17px;margin:0 0 14px}.muted{color:var(--muted);font-size:13px}
+.settings{grid-template-columns:repeat(2,minmax(0,1fr))}
+input,select,button{font:inherit}input,select{border:1px solid #d6deea;border-radius:8px;padding:9px;background:#fff;color:var(--ink);width:100%;min-width:0}
+button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #9bc3ff;outline-offset:2px}
+.primary{background:#286fce;color:white}.secondary{background:#edf2f8;color:#263247;border:1px solid #dce4ee}.danger{background:#fff0f0;color:#bd3535;border:1px solid #ffd3d3}
+.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}.row .fit{flex:0 0 auto}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:10px 7px;border-bottom:1px solid var(--line);text-align:center}th{background:#f7f9fc;color:#56647a;font-weight:750}td:first-child,th:first-child{text-align:left}
+.score-table input{text-align:center;padding:8px}.score-table td:first-child{font-weight:650}
+.pill{display:inline-block;border-radius:20px;padding:4px 8px;font-size:12px;font-weight:750;white-space:nowrap}
+.up{background:#e7f7ef;color:#087c4b}.down{background:#ffeded;color:#c33d3d}.same{background:#edf1f6;color:#56647a}
+.chart-wrap{max-width:680px;margin:auto}.chart-wrap svg{width:100%;height:auto;display:block}
+.legend{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;font-size:13px;margin-bottom:10px}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+.bar-track{height:9px;border-radius:20px;background:#edf1f6;overflow:hidden}.bar{height:100%;border-radius:20px}
+.analysis{line-height:1.85;font-size:14px}.change-bars{display:grid;gap:12px}.barline{display:grid;grid-template-columns:minmax(110px,1fr) 2fr 65px;gap:10px;align-items:center;font-size:13px}
+.actions{display:flex;flex-wrap:wrap;gap:8px}.actions button{flex:1}
+.notice{padding:10px 12px;border-radius:9px;background:#f2f6fc;color:#56647a;font-size:12px;line-height:1.6}
+#error{color:#c33d3d;font-size:13px;min-height:18px;margin-top:8px}
+@media(max-width:650px){main{padding:15px 10px 35px}.card{padding:14px}.stats{gap:7px}.big{font-size:21px}.stat .label{font-size:10px}.settings{grid-template-columns:1fr}.score-table{font-size:11px}.score-table th,.score-table td{padding:7px 3px}.score-table input{padding:7px 3px;font-size:12px}.barline{grid-template-columns:100px 1fr 48px;font-size:11px}.actions button{min-width:42%}}
+</style>
+</head>
+<body>
+<main>
+<header>
+ <div class="eyebrow">DIGITAL LITERACY · SELF ASSESSMENT</div>
+ <h1>디지털 리터러시 역량 분석 및 평가</h1>
+ <p>사전·사후 역량 변화와 학급 평균을 한눈에 비교해 보세요.</p>
+ <div class="accent"></div>
+</header>
+
+<section class="grid stats">
+ <div class="card stat"><div class="label">학생 사전 평균</div><div class="big" id="preAvg">47.2</div><div class="label">점</div></div>
+ <div class="card stat"><div class="label">학생 사후 평균</div><div class="big" id="postAvg">77.8</div><div class="label">점</div></div>
+ <div class="card stat"><div class="label">평균 점수 변화</div><div class="big" id="avgChange" style="color:var(--green)">+30.6</div><div class="label">점</div></div>
+</section>
+
+<section class="card" style="margin-bottom:14px">
+ <h2>① 평가 기준 설정</h2>
+ <div class="grid settings">
+  <label>점수 범위<select id="scale"><option value="5">5점 만점</option><option value="10">10점 만점</option><option value="20">20점 만점</option><option value="100" selected>100점 만점</option></select></label>
+  <label>미입력 영역 처리<select id="missing"><option value="exclude">차트에서 제외</option><option value="zero">0점으로 표시</option></select></label>
+ </div>
+ <p class="muted">척도를 변경하면 기존 점수는 같은 비율로 자동 환산됩니다. 변화율은 사전 점수가 0점이면 계산하지 않습니다.</p>
+</section>
+
+<section class="card" style="margin-bottom:14px">
+ <h2>② 평가 영역 관리</h2>
+ <div class="row"><input id="newArea" maxlength="30" placeholder="추가할 평가 영역 이름"><button class="primary fit" id="addArea">＋ 영역 추가</button></div>
+ <div id="areaList" style="display:grid;gap:7px;margin-top:12px"></div>
+ <p class="muted">평가 영역은 최대 12개까지 설정할 수 있습니다. 영역을 삭제하면 해당 영역의 점수도 함께 삭제됩니다.</p>
+</section>
+
+<section class="card" style="margin-bottom:14px">
+ <h2>③ 영역별 점수 입력</h2>
+ <div style="overflow-x:auto">
+ <table class="score-table"><thead><tr><th style="min-width:115px">평가 영역</th><th style="color:var(--blue)">사전</th><th style="color:var(--red)">사후</th><th style="color:var(--green)">반 평균</th></tr></thead><tbody id="scoreRows"></tbody></table>
+ </div>
+ <p class="muted">학생의 사전·사후 점수와 반 평균을 입력하세요. 빈칸은 미입력으로 처리됩니다.</p>
+ <div class="actions">
+  <button class="primary" id="apply">점수 적용하기</button>
+  <button class="secondary" id="resetStudent">학생 점수 초기화</button>
+  <button class="secondary" id="resetClass">반 평균 초기화</button>
+  <button class="danger" id="resetAll">전체 초기화</button>
+ </div>
+ <div id="error" role="alert"></div>
+</section>
+
+<section class="card" style="margin-bottom:14px">
+ <h2>④ 사전·사후·반 평균 레이더 차트</h2>
+ <div class="legend"><span><i class="dot" style="background:var(--blue)"></i>사전 평가</span><span><i class="dot" style="background:var(--red)"></i>학생 사후 평가</span><span><i class="dot" style="background:var(--green)"></i>반 평균</span></div>
+ <div class="chart-wrap"><svg id="radar" viewBox="0 0 520 450" role="img" aria-label="사전, 사후, 반 평균 레이더 차트"></svg></div>
+ <p class="muted" style="text-align:center">점수가 높을수록 해당 역량 수준이 높습니다. 미입력 영역은 선택한 설정에 따라 제외하거나 0점으로 표시합니다.</p>
+</section>
+
+<section class="card" style="margin-bottom:14px">
+ <h2>⑤ 사전·사후 점수 변화 분석</h2>
+ <div style="overflow-x:auto">
+ <table><thead><tr><th>평가 영역</th><th>사전</th><th>사후</th><th>점수 변화</th><th>변화율</th></tr></thead><tbody id="changeRows"></tbody><tfoot id="changeFoot"></tfoot></table>
+ </div>
+ <div style="margin-top:16px"><h2 style="font-size:14px">영역별 점수 변화</h2><div class="change-bars" id="changeBars"></div></div>
+ <p class="muted">점수 변화 = 사후 점수 − 사전 점수. 변화율 = (점수 변화 ÷ 사전 점수) × 100. 사전 점수가 0점인 경우 변화율은 산출하지 않습니다.</p>
+</section>
+
+<section class="card" style="margin-bottom:14px">
+ <h2>⑥ 학생과 반 평균 비교</h2>
+ <div class="grid stats">
+  <div class="stat"><div class="label">학생 사후 평균</div><div class="big" id="studentMean">77.8</div></div>
+  <div class="stat"><div class="label">반 평균</div><div class="big" id="classMean">-</div></div>
+  <div class="stat"><div class="label">학생-반 차이</div><div class="big" id="classDiff">-</div></div>
+ </div>
+ <div id="analysis" class="analysis"></div>
+ <div id="comparisonRows" style="display:grid;gap:12px;margin-top:15px"></div>
+</section>
+
+<section class="card" style="margin-bottom:14px">
+ <h2>⑦ 종합 평가 결과</h2>
+ <div id="summary" class="analysis"></div>
+</section>
+<div class="actions">
+ <button class="primary" id="savePng">↓ 레이더 차트 PNG 저장</button>
+ <button class="secondary" id="copyText">분석 결과 복사</button>
+</div>
+<p class="muted" id="status" role="status" style="text-align:center;margin-top:12px">점수를 입력하고 적용 버튼을 눌러 주세요.</p>
+</main>
+
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const initial=[
+ {name:'정보검색 능력',pre:45,post:78,cls:null},
+ {name:'비판적 사고',pre:38,post:71,cls:null},
+ {name:'디지털 도구 활용',pre:52,post:85,cls:null},
+ {name:'협업 능력',pre:60,post:80,cls:null},
+ {name:'창의적 문제해결',pre:41,post:75,cls:null}
+];
+let areas=initial.map(x=>({...x})),max=100,missing='exclude';
+const avg=a=>{let v=a.filter(x=>x!==null&&Number.isFinite(x));return v.length?v.reduce((s,x)=>s+x,0)/v.length:null};
+const f=n=>n===null?'—':n.toFixed(1);
+const signed=n=>(n>0?'+':'')+n;
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function renderAreaList(){
+ $('areaList').innerHTML=areas.map((a,i)=>`<div class="row" style="background:#f5f7fa;border-radius:8px;padding:7px 10px"><span style="font-size:13px">${i+1}. ${esc(a.name)}</span><button class="danger fit" data-del="${i}" style="padding:5px 9px">삭제</button></div>`).join('')||'<p class="muted">평가 영역을 추가해 주세요.</p>';
+}
+function renderInputs(){
+ $('scoreRows').innerHTML=areas.map((a,i)=>`<tr><td>${esc(a.name)}</td>${['pre','post','cls'].map(k=>`<td><input aria-label="${esc(a.name)} ${k}" type="number" min="0" max="${max}" step="any" placeholder="-" value="${a[k]??''}" data-i="${i}" data-k="${k}"></td>`).join('')}</tr>`).join('');
+}
+function point(i,v,cx,cy,r){
+ const a=-Math.PI/2+i*2*Math.PI/areas.length;
+ return [cx+Math.cos(a)*r*v/max,cy+Math.sin(a)*r*v/max];
+}
+function drawChart(){
+ const svg=$('radar'),cx=260,cy=218,r=145,n=areas.length;
+ if(!n){svg.innerHTML='<text x="260" y="220" text-anchor="middle" fill="#68758a">평가 영역을 추가해 주세요.</text>';return}
+ let s='';
+ for(let k=1;k<=5;k++){
+  let ps=areas.map((a,i)=>point(i,max*k/5,cx,cy,r));
+  s+=`<polygon points="${ps.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#aab4c2" opacity=".55"/>`;
+  s+=`<text x="${cx+5}" y="${cy-r*k/5-4}" font-size="10" fill="#68758a">${max*k/5}</text>`;
+ }
+ areas.forEach((a,i)=>{
+  let p=point(i,max,cx,cy,r);s+=`<line x1="${cx}" y1="${cy}" x2="${p[0]}" y2="${p[1]}" stroke="#aab4c2" opacity=".55"/>`;
+  let l=point(i,max*1.25,cx,cy,r);
+  s+=`<text x="${l[0]}" y="${l[1]}" text-anchor="middle" dominant-baseline="middle" font-size="${n>8?10:12}" font-weight="650" fill="#35445a">${esc(a.name)}</text>`;
+ });
+ [['pre','#3985e8'],['post','#ed5555'],['cls','#16a36b']].forEach(([key,color])=>{
+  const vals=areas.map(a=>a[key]===null&&missing==='zero'?0:a[key]);
+  if(vals.every(v=>v!==null)){
+   const ps=vals.map((v,i)=>point(i,v,cx,cy,r));
+   s+=`<polygon points="${ps.map(p=>p.join(',')).join(' ')}" fill="${color}" fill-opacity=".13" stroke="${color}" stroke-width="2.5" stroke-linejoin="round"/>`;
+  }else{
+   vals.forEach((v,i)=>{let j=(i+1)%n;if(v!==null&&vals[j]!==null){let p=point(i,v,cx,cy,r),q=point(j,vals[j],cx,cy,r);s+=`<line x1="${p[0]}" y1="${p[1]}" x2="${q[0]}" y2="${q[1]}" stroke="${color}" stroke-width="2.5" stroke-dasharray="5 3"/>`}});
+  }
+  vals.forEach((v,i)=>{if(v!==null){let p=point(i,v,cx,cy,r);s+=`<circle cx="${p[0]}" cy="${p[1]}" r="4.5" fill="${color}" stroke="white" stroke-width="1.5"/>`}});
+ });
+ svg.innerHTML=s;
+}
+function changeClass(v){
+ if(v===null)return '<span class="pill same">미입력</span>';
+ return `<span class="pill ${v>0?'up':v<0?'down':'same'}">${signed(v)}점</span>`;
+}
+function update(){
+ const pre=avg(areas.map(a=>a.pre)),post=avg(areas.map(a=>a.post)),cl=avg(areas.map(a=>a.cls));
+ $('preAvg').textContent=f(pre);$('postAvg').textContent=f(post);
+ $('avgChange').textContent=pre===null||post===null?'—':signed(Number((post-pre).toFixed(1)));
+ $('avgChange').style.color=pre===null||post===null?'var(--ink)':post>=pre?'var(--green)':'var(--red)';
+ $('studentMean').textContent=f(post);$('classMean').textContent=f(cl);
+ $('classDiff').textContent=post===null||cl===null?'—':signed(Number((post-cl).toFixed(1)));
+ const changes=areas.map(a=>a.pre===null||a.post===null?null:a.post-a.pre);
+ const valid=changes.filter(x=>x!==null);
+ const sumPre=areas.filter(a=>a.pre!==null).length;
+ const sumPost=areas.filter(a=>a.post!==null).length;
+ $('changeRows').innerHTML=areas.map((a,i)=>{
+  const d=changes[i],rate=d===null||a.pre===0?null:d/a.pre*100;
+  return `<tr><td>${esc(a.name)}</td><td>${a.pre??'—'}</td><td>${a.post??'—'}</td><td>${changeClass(d)}</td><td>${rate===null?'—':signed(Number(rate.toFixed(1)))+'%'}</td></tr>`;
+ }).join('');
+ $('changeFoot').innerHTML=`<tr style="font-weight:800;background:#f7f9fc"><td>전체 평균</td><td>${f(pre)}</td><td>${f(post)}</td><td>${changeClass(pre===null||post===null?null:Number((post-pre).toFixed(1)))}</td><td>${pre===null||post===null||pre===0?'—':signed(Number(((post-pre)/pre*100).toFixed(1)))+'%'}</td></tr>`;
+ $('changeBars').innerHTML=areas.map((a,i)=>{
+  const d=changes[i];let width=d===null?0:Math.min(100,Math.abs(d)/max*100);
+  return `<div class="barline"><span>${esc(a.name)}</span><div class="bar-track"><div class="bar" style="width:${width}%;background:${d===null?'#cbd5e1':d>=0?'#16a36b':'#ed5555'}"></div></div><b style="color:${d===null?'#68758a':d>=0?'#16a36b':'#ed5555'}">${d===null?'—':signed(d)}</b></div>`;
+ }).join('');
+ const diffs=areas.map(a=>a.post===null||a.cls===null?null:a.post-a.cls),dv=diffs.filter(x=>x!==null);
+ const higher=dv.filter(x=>x>0).length,lower=dv.filter(x=>x<0).length;
+ const best=valid.length?changes.indexOf(Math.max(...valid)):-1;
+ const classBest=dv.length?diffs.indexOf(Math.max(...dv)):-1;
+ const classLow=dv.length?diffs.indexOf(Math.min(...dv)):-1;
+ $('analysis').innerHTML=`<p>사전 평가 평균 <b>${f(pre)}점</b>에서 사후 평가 평균 <b>${f(post)}점</b>으로 <b style="color:${pre!==null&&post!==null&&post>=pre?'#16a36b':'#ed5555'}">${pre===null||post===null?'계산 불가':signed(Number((post-pre).toFixed(1)))+'점'}</b> 변화했습니다.</p>
+ <p>학생과 반 평균을 비교할 수 있는 영역은 ${dv.length}개이며, 반 평균보다 높은 영역은 ${higher}개, 낮은 영역은 ${lower}개입니다.</p>
+ ${best<0?'':'<p>가장 크게 향상된 영역은 <b>'+esc(areas[best].name)+'</b> ('+signed(changes[best])+'점)입니다.</p>'}
+ ${classBest<0?'':'<p>반 평균 대비 가장 높은 영역은 <b>'+esc(areas[classBest].name)+'</b> ('+signed(diffs[classBest])+'점), 가장 낮은 영역은 <b>'+esc(areas[classLow].name)+'</b> ('+signed(diffs[classLow])+'점)입니다.</p>'}`;
+ $('comparisonRows').innerHTML=areas.map((a,i)=>{
+  const d=diffs[i],label=d===null?'비교 불가':d>0?'반 평균보다 높음':d<0?'반 평균보다 낮음':'반 평균과 같음';
+  return `<div><div class="row"><span style="font-size:13px">${esc(a.name)}</span><b style="font-size:13px;color:${d===null?'#68758a':d>=0?'#16a36b':'#ed5555'}">${d===null?'—':signed(d)+'점'}</b></div><div class="muted" style="margin:4px 0">${label}</div><div class="bar-track"><div class="bar" style="width:${d===null?0:Math.min(100,Math.abs(d)/max*100)}%;background:${d===null?'#cbd5e1':d>=0?'#16a36b':'#ed5555'}"></div></div></div>`;
+ }).join('');
+ $('summary').innerHTML=`<b>평가 기준:</b> ${max}점 만점<br><b>평가 영역 수:</b> ${areas.length}개<br><b>사전 평균:</b> ${f(pre)}점<br><b>사후 평균:</b> ${f(post)}점<br><b>평균 점수 변화:</b> ${pre===null||post===null?'—':signed(Number((post-pre).toFixed(1)))+'점'}<br><b>평균 변화율:</b> ${pre===null||post===null||pre===0?'산출 불가':signed(Number(((post-pre)/pre*100).toFixed(1)))+'%'}<br><b>반 평균:</b> ${f(cl)}점<br><br>점수 변화는 사후 점수에서 사전 점수를 뺀 값입니다. 양수는 향상, 음수는 하락, 0은 변화 없음을 뜻합니다. 변화율은 사전 점수 대비 변화 비율입니다.`;
+ drawChart();
+}
+function render(){renderAreaList();renderInputs();update()}
+function apply(){
+ const next=areas.map(a=>({...a}));
+ for(const input of document.querySelectorAll('#scoreRows input')){
+  const raw=input.value.trim(),v=raw===''?null:Number(raw);
+  if(v!==null&&(!Number.isFinite(v)||v<0||v>max)){
+   $('error').textContent=`점수는 0~${max} 범위의 숫자로 입력해 주세요.`;input.focus();return;
+  }
+  next[Number(input.dataset.i)][input.dataset.k]=v;
+ }
+ areas=next;$('error').textContent='';render();$('status').textContent='점수를 적용했습니다.';
+}
+$('apply').addEventListener('click',apply);
+$('addArea').addEventListener('click',()=>{
+ const name=$('newArea').value.trim();
+ if(!name){$('status').textContent='평가 영역 이름을 입력해 주세요.';return}
+ if(areas.length>=12){$('status').textContent='평가 영역은 최대 12개까지 가능합니다.';return}
+ if(areas.some(a=>a.name.toLowerCase()===name.toLowerCase())){$('status').textContent='이미 등록된 영역입니다.';return}
+ areas.push({name,pre:null,post:null,cls:null});$('newArea').value='';render();$('status').textContent='새 평가 영역을 추가했습니다.';
+});
+$('newArea').addEventListener('keydown',e=>{if(e.key==='Enter')$('addArea').click()});
+$('areaList').addEventListener('click',e=>{
+ const b=e.target.closest('[data-del]');if(!b)return;
+ const name=areas[Number(b.dataset.del)].name;areas.splice(Number(b.dataset.del),1);render();$('status').textContent=name+' 영역을 삭제했습니다.';
+});
+$('scale').addEventListener('change',()=>{
+ const next=Number($('scale').value);
+ areas=areas.map(a=>Object.fromEntries(['name','pre','post','cls'].map(k=>[k,k==='name'?a[k]:a[k]===null?null:Number((a[k]/max*next).toFixed(2))])));
+ max=next;render();$('status').textContent='점수 범위를 '+max+'점 만점으로 변경했습니다.';
+});
+$('missing').addEventListener('change',()=>{missing=$('missing').value;update();$('status').textContent=missing==='exclude'?'미입력 영역을 차트에서 제외했습니다.':'미입력 영역을 0점으로 표시합니다.'});
+$('resetStudent').addEventListener('click',()=>{areas=areas.map(a=>({...a,pre:null,post:null}));render();$('status').textContent='학생의 사전·사후 점수를 초기화했습니다.'});
+$('resetClass').addEventListener('click',()=>{areas=areas.map(a=>({...a,cls:null}));render();$('status').textContent='반 평균 점수를 초기화했습니다.'});
+$('resetAll').addEventListener('click',()=>{areas=initial.map(a=>({...a}));max=100;missing='exclude';$('scale').value='100';$('missing').value='exclude';$('error').textContent='';render();$('status').textContent='초기 데이터와 설정으로 복원했습니다.'});
+function report(){
+ const pre=avg(areas.map(a=>a.pre)),post=avg(areas.map(a=>a.post)),cl=avg(areas.map(a=>a.cls));
+ return `디지털 리터러시 역량 분석 결과\n평가 척도: ${max}점 만점\n사전 평균: ${f(pre)}점\n사후 평균: ${f(post)}점\n평균 변화: ${pre===null||post===null?'—':signed(Number((post-pre).toFixed(1)))+'점'}\n반 평균: ${f(cl)}점\n\n`+areas.map(a=>{const d=a.pre===null||a.post===null?null:a.post-a.pre;const rate=d===null||a.pre===0?null:d/a.pre*100;return `${a.name}: 사전 ${a.pre??'미입력'} / 사후 ${a.post??'미입력'} / 변화 ${d===null?'미입력':signed(d)+'점'} / 변화율 ${rate===null?'산출 불가':signed(Number(rate.toFixed(1)))+'%'} / 반 평균 ${a.cls??'미입력'}`}).join('\n')+'\n\n'+$('analysis').innerText;
+}
+$('copyText').addEventListener('click',async()=>{
+ try{await navigator.clipboard.writeText(report());$('status').textContent='분석 결과를 복사했습니다.'}
+ catch(e){const t=document.createElement('textarea');t.value=report();document.body.appendChild(t);t.select();const ok=document.execCommand('copy');t.remove();$('status').textContent=ok?'분석 결과를 복사했습니다.':'복사에 실패했습니다.'}
+});
+$('savePng').addEventListener('click',()=>{
+ const source=$('radar'),clone=source.cloneNode(true);
+ clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
+ const svgText=new XMLSerializer().serializeToString(clone);
+ const url=URL.createObjectURL(new Blob([svgText],{type:'image/svg+xml;charset=utf-8'}));
+ const img=new Image();
+ img.onload=()=>{
+  const canvas=document.createElement('canvas');canvas.width=1200;canvas.height=1040;
+  const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,1200,1040);
+  ctx.fillStyle='#263247';ctx.textAlign='center';ctx.font='bold 30px sans-serif';ctx.fillText('디지털 리터러시 역량 비교',600,55);
+  ctx.drawImage(img,0,80,1200,960);
+  canvas.toBlob(blob=>{
+   if(!blob){$('status').textContent='PNG 생성에 실패했습니다.';URL.revokeObjectURL(url);return}
+   const link=document.createElement('a'),u=URL.createObjectURL(blob);link.href=u;link.download='디지털리터러시_레이더차트.png';link.click();URL.revokeObjectURL(u);URL.revokeObjectURL(url);$('status').textContent='레이더 차트를 PNG로 저장했습니다.';
+  },'image/png');
+ };
+ img.onerror=()=>{$('status').textContent='이미지 저장에 실패했습니다.';URL.revokeObjectURL(url)};
+ img.src=url;
+});
+render();
+})();
+</script>
+</body>
+</html>
