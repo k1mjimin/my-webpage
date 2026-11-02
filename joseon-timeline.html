@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>조선시대 인터랙티브 연표</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EEF2EE;--surface:#FFFFFF;--ink:#1F2A2E;--muted:#5B6B6F;--line:#B9C6C2;--accent:#B5382F;--jade:#2F6B63;--gold:#C99A2E;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141C1E;--surface:#1E2A2D;--ink:#EAF0EE;--muted:#9FB0AD;--line:#3C4F52;--accent:#E0675D;--jade:#6FB5AA;--gold:#E0B957}}
+:root[data-theme="dark"]{--bg:#141C1E;--surface:#1E2A2D;--ink:#EAF0EE;--muted:#9FB0AD;--line:#3C4F52;--accent:#E0675D;--jade:#6FB5AA;--gold:#E0B957}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif;min-height:100vh;overflow-x:hidden}
+header{padding:28px 24px 8px;max-width:960px;margin:0 auto}
+h1{font-family:"Gowun Batang",serif;font-size:clamp(26px,5vw,40px);margin:0 0 6px}
+header p{margin:0;color:var(--muted)}
+.opts{display:flex;flex-wrap:wrap;gap:14px 24px;margin-top:16px}
+.grp{display:flex;align-items:center;gap:8px}
+.grp>span{color:var(--muted);font-size:14px}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;color:var(--ink);font:inherit;font-size:14px;padding:8px 14px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--jade);color:#fff}
+.seg button:focus-visible,.nav button:focus-visible,.modal button:focus-visible,.dot:focus-visible,.lab:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.stage{margin-top:18px}
+.track{overflow:auto;position:relative;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.track.v{height:min(64vh,560px)}
+.inner{position:relative}
+.axis{position:absolute;background:var(--line);border-radius:2px}
+.tick{position:absolute;font-size:13px;color:var(--muted);white-space:nowrap}
+.ev{position:absolute;width:0;height:0}
+.dot{position:absolute;left:-10px;top:-10px;width:20px;height:20px;border-radius:50%;background:var(--surface);border:3px solid var(--jade);padding:0;cursor:pointer;z-index:2;transition:transform .35s,background .35s,border-color .35s}
+.stem{position:absolute;background:var(--line);z-index:1}
+.lab{position:absolute;background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:5px 8px;font:inherit;color:var(--muted);cursor:pointer;line-height:1.3;transition:border-color .3s,color .3s}
+.lab b{display:block;font-family:"Gowun Batang",serif;font-size:14px}
+.lab span{font-size:13px}
+.h .lab{width:128px;text-align:center}
+.v .lab{width:136px;text-align:left}
+.ev:hover .dot{transform:scale(1.25)}
+.ev.active .dot{transform:scale(1.7);background:var(--accent);border-color:var(--accent)}
+.ev.active .lab{border-color:var(--accent);color:var(--ink)}
+.ev.active .lab b{color:var(--accent)}
+.nav{display:flex;justify-content:center;gap:12px;margin-top:14px}
+.nav button{background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:999px;padding:10px 20px;font:inherit;cursor:pointer}
+.nav button:disabled{opacity:.4;cursor:default}
+.hint{text-align:center;color:var(--muted);font-size:14px;margin:14px 20px 40px}
+.overlay{position:fixed;inset:0;background:rgba(10,18,20,.55);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+.overlay.open{display:flex}
+.modal{background:var(--surface);color:var(--ink);border-radius:20px;max-width:520px;width:100%;max-height:88vh;overflow:auto;padding:28px;border-top:8px solid var(--accent);animation:pop .28s ease-out}
+@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+.modal .badge{display:inline-block;background:var(--accent);color:#fff;border-radius:999px;padding:4px 14px;font-weight:700;font-family:"Gowun Batang",serif}
+.modal h2{font-family:"Gowun Batang",serif;font-size:28px;margin:12px 0 10px}
+.modal p{line-height:1.75;font-size:17px;margin:0 0 12px}
+.modal .fact{background:var(--bg);border-left:5px solid var(--gold);padding:12px 14px;border-radius:8px;font-size:16px}
+.modal .row{display:flex;justify-content:space-between;gap:10px;margin-top:18px}
+.modal button{border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:10px 18px;font:inherit;cursor:pointer}
+.modal button:disabled{opacity:.4}
+.modal button.close{background:var(--jade);border-color:var(--jade);color:#fff}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+<h1>조선시대 역사 연표</h1>
+<p>동그라미나 이름표를 누르면 사건 이야기가 나와요.</p>
+<div class="opts">
+<div class="grp"><span>방향</span><div class="seg" id="segO"><button data-v="h" aria-pressed="true">가로</button><button data-v="v" aria-pressed="false">세로</button></div></div>
+<div class="grp"><span>간격</span><div class="seg" id="segS"><button data-v="prop" aria-pressed="true">실제 햇수대로</button><button data-v="equal" aria-pressed="false">똑같은 간격</button></div></div>
+</div>
+</header>
+<div class="stage">
+<div class="track h" id="track"><div class="inner" id="inner"></div></div>
+<div class="nav"><button id="prev">이전 사건</button><button id="next">다음 사건</button></div>
+</div>
+<p class="hint" id="hint"></p>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+<div class="modal">
+<span class="badge" id="mYear"></span>
+<h2 id="mTitle"></h2>
+<p id="mText"></p>
+<p class="fact" id="mFact"></p>
+<div class="row"><button id="mPrev">이전</button><button class="close" id="mClose">닫기</button><button id="mNext">다음</button></div>
+</div>
+</div>
+
+<script>
+const events=[
+{y:1392,n:"조선 건국",t:"이성계 장군이 고려를 이어 새 나라 ‘조선’을 세웠어요. 백성을 위한 나라를 만들겠다고 약속했답니다.",f:"수도는 한양, 지금의 서울이에요."},
+{y:1418,n:"세종대왕 즉위",t:"세종대왕이 조선의 네 번째 임금이 되었어요. 백성이 잘 살 수 있도록 공부하고 연구하는 일을 아주 좋아했어요.",f:"집현전이라는 연구소에서 똑똑한 학자들과 함께 일했어요."},
+{y:1443,n:"한글 창제",t:"세종대왕이 백성이 쉽게 배울 수 있는 우리 글자를 만들었어요. 어려운 한자를 몰라도 누구나 읽고 쓸 수 있게 되었지요.",f:"처음 이름은 ‘훈민정음’, 뜻은 ‘백성을 가르치는 바른 소리’예요."},
+{y:1592,n:"임진왜란",t:"일본이 바다를 건너 조선을 쳐들어왔어요. 이순신 장군과 의병들이 힘을 모아 나라를 지켜 냈어요.",f:"이순신 장군은 거북선으로 바다에서 크게 이겼어요."},
+{y:1636,n:"병자호란",t:"청나라가 조선에 쳐들어왔어요. 인조 임금은 남한산성으로 피했지만 오래 버티지 못하고 청나라와 화해했어요.",f:"전쟁이 끝난 뒤 많은 백성이 힘든 시간을 보냈어요."},
+{y:1724,n:"영조의 탕평책",t:"영조 임금은 편을 갈라 싸우던 신하들을 골고루 뽑아 함께 일하게 했어요. 이것을 ‘탕평책’이라고 해요.",f:"‘탕평’은 치우치지 않고 고르게 한다는 뜻이에요."},
+{y:1776,n:"규장각 설치",t:"정조 임금이 궁궐 안에 ‘규장각’이라는 도서관 겸 연구소를 세웠어요. 중요한 책과 나라의 기록을 모아 두고, 똑똑한 학자들이 모여 공부하며 나라 일을 도왔어요.",f:"정조는 신분에 상관없이 실력 있는 학자를 뽑아 함께 일했어요."},
+{y:1794,n:"수원 화성 축조",t:"정조 임금이 수원에 튼튼하고 아름다운 성을 짓기 시작했어요. 정약용이 만든 기계 ‘거중기’로 무거운 돌을 쉽게 들어 올렸어요.",f:"수원 화성은 유네스코 세계유산이에요."},
+{y:1866,n:"병인양요",t:"프랑스 군대가 강화도에 쳐들어왔어요. 우리 군사들은 용감하게 싸워 프랑스 군대를 물리쳤어요.",f:"이때 프랑스가 외규장각 책들을 가져가 버렸어요."},
+{y:1894,n:"동학농민운동",t:"농민들이 힘든 세금과 나쁜 관리에 맞서 일어났어요. 모두가 평등하고 잘사는 세상을 바랐어요.",f:"지도자 전봉준 장군이 앞장섰어요."},
+{y:1897,n:"대한제국 선포",t:"고종 임금이 나라 이름을 ‘대한제국’으로 바꾸고 황제가 되었어요. 다른 나라에 휘둘리지 않는 강한 나라가 되려고 했어요.",f:"‘대한민국’이라는 이름의 뿌리가 된 ‘대한’이 이때 나왔어요."}
+];
+events.sort((a,b)=>a.y-b.y);
+const $=id=>document.getElementById(id);
+const track=$('track'),inner=$('inner'),ov=$('overlay');
+const st={o:'h',s:'prop'};
+let cur=-1,last=null,evEls=[],posArr=[];
+const PX=5,SLOT={h:170,v:96},AX={h:46,v:76},LH=62,LW=146,LBL={h:128,v:52};
+
+function layout(){
+ const H=st.o==='h';
+ track.className='track '+st.o;
+ inner.innerHTML='';
+ const view=H?track.clientWidth:track.clientHeight;
+ const pad=Math.max(view/2,80);
+ const years=[...new Set(events.map(e=>e.y))];
+ const min=years[0],max=years[years.length-1];
+ const pos=y=>st.s==='prop'?pad+(y-min)*PX:pad+years.indexOf(y)*SLOT[st.o];
+ const total=pos(max)+pad;
+ const ends=[];posArr=[];
+ const lanes=events.map(e=>{
+  const p=pos(e.y),half=LBL[st.o]/2;let l=0;
+  while(ends[l]!==undefined&&p-half<ends[l]+4)l++;
+  ends[l]=p+half;posArr.push(p);return l;
+ });
+ const nl=Math.max(...lanes)+1;
+ const ax=AX[st.o];
+ const axis=document.createElement('div');axis.className='axis';
+ if(H){Object.assign(axis.style,{left:0,top:ax-1.5+'px',width:total+'px',height:'3px'});inner.style.width=total+'px';inner.style.height=ax+16+nl*LH+20+'px';}
+ else{Object.assign(axis.style,{top:0,left:ax-1.5+'px',height:total+'px',width:'3px'});inner.style.height=total+'px';inner.style.width=ax+22+nl*LW+20+'px';}
+ inner.appendChild(axis);
+ if(st.s==='prop'){
+  for(let c=Math.ceil(min/100)*100;c<=max;c+=100){
+   const t=document.createElement('div');t.className='tick';t.textContent=c+'년';
+   const p=pos(c);
+   if(H){t.style.left=p+'px';t.style.top=ax-34+'px';t.style.transform='translateX(-50%)';}
+   else{t.style.top=p+'px';t.style.left=ax-16+'px';t.style.transform='translate(-100%,-50%)';}
+   inner.appendChild(t);
+  }
+ }
+ evEls=events.map((e,i)=>{
+  const p=posArr[i],l=lanes[i];
+  const d=document.createElement('div');d.className='ev';
+  if(H){d.style.left=p+'px';d.style.top=ax+'px';}else{d.style.top=p+'px';d.style.left=ax+'px';}
+  const dot=document.createElement('button');dot.className='dot';dot.type='button';dot.setAttribute('aria-label',e.y+'년 '+e.n);
+  const lab=document.createElement('button');lab.className='lab';lab.type='button';
+  lab.innerHTML='<b>'+e.y+'년</b><span>'+e.n+'</span>';
+  if(H){lab.style.left=-LBL.h+'px';lab.style.left=-64+'px';lab.style.top=16+l*LH+'px';}
+  else{lab.style.left=22+l*LW+'px';lab.style.top=-26+'px';}
+  d.append(dot);
+  if(l>0){const s=document.createElement('div');s.className='stem';
+   if(H)Object.assign(s.style,{left:'-1px',top:'10px',width:'2px',height:6+l*LH+'px'});
+   else Object.assign(s.style,{top:'-1px',left:'10px',height:'2px',width:12+l*LW+'px'});
+   d.append(s);}
+  d.append(lab);
+  dot.onclick=lab.onclick=()=>open(i);
+  inner.appendChild(d);return d;
+ });
+ const m=st.s==='prop'
+  ?'점 사이의 거리는 실제로 흐른 시간과 같아요. (100년 = '+PX*100+'칸)'
+  :'사건 사이를 똑같은 간격으로 놓았어요. 실제 햇수와는 달라요.';
+ const same=nl>1?' 이름표가 겹치면 아래(또는 옆) 줄로 비켜서 나란히 놓여요. 같은 해 사건도 같은 점 위치에서 줄만 달라져요.':'';
+ $('hint').textContent=m+same;
+ if(cur>=0){evEls[cur].classList.add('active');center(cur,false);}
+}
+function center(i,smooth=true){
+ const H=st.o==='h',p=posArr[i];
+ const b=smooth?'smooth':'auto';
+ if(H)track.scrollTo({left:p-track.clientWidth/2,behavior:b});
+ else track.scrollTo({top:p-track.clientHeight/2,behavior:b});
+}
+function select(i){
+ cur=i;evEls.forEach((e,k)=>e.classList.toggle('active',k===i));
+ center(i);
+ $('prev').disabled=i<=0;$('next').disabled=i>=events.length-1;
+}
+function fill(i){
+ const e=events[i];
+ $('mYear').textContent=e.y+'년';$('mTitle').textContent=e.n;$('mText').textContent=e.t;
+ $('mFact').textContent='알아두기: '+e.f;
+ $('mPrev').disabled=i===0;$('mNext').disabled=i===events.length-1;
+}
+function open(i){last=document.activeElement;select(i);fill(i);ov.classList.add('open');$('mClose').focus();}
+function close(){ov.classList.remove('open');if(last&&document.body.contains(last))last.focus();}
+function go(d){const i=cur+d;if(i<0||i>=events.length)return;select(i);if(ov.classList.contains('open'))fill(i);}
+$('mClose').onclick=close;$('mPrev').onclick=()=>go(-1);$('mNext').onclick=()=>go(1);
+$('prev').onclick=()=>go(-1);
+$('next').onclick=()=>{cur<0?select(0):go(1);};
+ov.addEventListener('click',e=>{if(e.target===ov)close()});
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape')close();
+ if(e.key==='ArrowRight'||e.key==='ArrowDown'){if(ov.classList.contains('open')||cur>=0)go(1);}
+ if(e.key==='ArrowLeft'||e.key==='ArrowUp'){if(ov.classList.contains('open')||cur>=0)go(-1);}
+});
+function seg(id,key){
+ const root=$(id);
+ root.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  st[key]=b.dataset.v;
+  root.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  layout();
+ });
+}
+seg('segO','o');seg('segS','s');
+let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(layout,150)});
+$('prev').disabled=true;
+layout();
+</script>
+</body>
+</html>
