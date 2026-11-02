@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>마음 쉼표 | 임용고시생을 위한 감정 명언 추천</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Gowun Batang (서정적인 느낌) & Noto Sans KR -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Gowun Batang"', 'serif'],
+            sans: ['"Noto Sans KR"', 'sans-serif'],
+          },
+          colors: {
+            pastel: {
+              bg: '#FDFBF7',
+              card: '#FFFFFF',
+              happy: '#FEF3C7',
+              happyText: '#92400E',
+              sad: '#E0E7FF',
+              sadText: '#3730A3',
+              burnout: '#FEE2E2',
+              burnoutText: '#991B1B',
+              anxious: '#E0F2FE',
+              anxiousText: '#075985',
+              accent: '#8B5CF6'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #FDFBF7;
+      font-family: 'Noto Sans KR', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .font-gowun {
+      font-family: 'Gowun Batang', serif;
+    }
+    /* Fade & Slide Animation */
+    .fade-in {
+      animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    /* Toast Notification Animation */
+    .toast-anim {
+      animation: toastSlide 2.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes toastSlide {
+      0% { opacity: 0; transform: translate(-50%, 20px) scale(0.95); }
+      15% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+      85% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -10px) scale(0.95); }
+    }
+  </style>
+</head>
+<body class="min-h-screen text-gray-800 flex flex-col justify-between selection:bg-purple-100 selection:text-purple-700 antialiased">
+
+  <!-- Header -->
+  <header class="w-full max-w-4xl mx-auto px-4 py-4 md:py-6 flex justify-between items-center border-b border-amber-100/70">
+    <div class="flex items-center gap-2.5">
+      <div class="p-2 bg-amber-100 rounded-2xl text-amber-700 shrink-0">
+        <i data-lucide="book-open-check" class="w-5 h-5 md:w-6 md:h-6"></i>
+      </div>
+      <div>
+        <h1 class="text-lg md:text-2xl font-bold font-gowun text-gray-800">마음 쉼표</h1>
+        <p class="text-[11px] md:text-xs text-gray-500">임용고시 합격을 향한 당신의 매일을 응원합니다</p>
+      </div>
+    </div>
+    
+    <!-- Management Toggle Button -->
+    <button id="btn-toggle-manage" onclick="toggleManageModal()" class="flex items-center gap-1.5 px-3 py-2 md:px-4 md:py-2 text-xs md:text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-full hover:bg-gray-50 active:scale-95 transition shadow-sm touch-manipulation">
+      <i data-lucide="settings" class="w-4 h-4 text-gray-500"></i>
+      <span class="hidden sm:inline">명언 관리</span>
+      <span class="sm:hidden">관리</span>
+    </button>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="w-full max-w-3xl mx-auto px-4 py-6 md:py-10 flex-grow flex flex-col items-center justify-center">
+
+    <!-- Section Intro -->
+    <div class="text-center mb-6 md:mb-8">
+      <span class="inline-block px-3 py-1 mb-2 text-xs font-semibold text-purple-700 bg-purple-50 rounded-full border border-purple-100">
+        오늘의 감정 맞춤 처방
+      </span>
+      <h2 class="text-xl sm:text-2xl md:text-3xl font-gowun font-bold text-gray-800 mb-1.5">
+        지금 마음의 상태는 어떠신가요?
+      </h2>
+      <p class="text-xs sm:text-sm text-gray-500">
+        아래의 버튼 중 마음과 가장 가까운 감정을 눌러주세요.
+      </p>
+    </div>
+
+    <!-- Emotion Buttons Grid (Mobile 2x2, Desktop 4x1) -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4 w-full mb-6 md:mb-8">
+      <!-- Happy -->
+      <button onclick="selectEmotion('happy')" id="btn-happy" class="emotion-btn flex flex-col items-center justify-center p-3.5 sm:p-4 rounded-2xl border-2 border-amber-200/80 bg-white hover:bg-amber-50/80 active:scale-95 transition-all shadow-sm touch-manipulation">
+        <span class="text-2xl sm:text-3xl mb-1">😊</span>
+        <span class="font-bold text-xs sm:text-sm text-amber-900">기쁘고 행복함</span>
+        <span class="text-[10px] sm:text-[11px] text-amber-600/80 mt-0.5">성취와 기쁨의 순간</span>
+      </button>
+
+      <!-- Sad -->
+      <button onclick="selectEmotion('sad')" id="btn-sad" class="emotion-btn flex flex-col items-center justify-center p-3.5 sm:p-4 rounded-2xl border-2 border-indigo-200/80 bg-white hover:bg-indigo-50/80 active:scale-95 transition-all shadow-sm touch-manipulation">
+        <span class="text-2xl sm:text-3xl mb-1">😢</span>
+        <span class="font-bold text-xs sm:text-sm text-indigo-900">슬프고 우울함</span>
+        <span class="text-[10px] sm:text-[11px] text-indigo-600/80 mt-0.5">위로가 필요한 때</span>
+      </button>
+
+      <!-- Burnout -->
+      <button onclick="selectEmotion('burnout')" id="btn-burnout" class="emotion-btn flex flex-col items-center justify-center p-3.5 sm:p-4 rounded-2xl border-2 border-rose-200/80 bg-white hover:bg-rose-50/80 active:scale-95 transition-all shadow-sm touch-manipulation">
+        <span class="text-2xl sm:text-3xl mb-1">☕</span>
+        <span class="font-bold text-xs sm:text-sm text-rose-900">지치고 번아웃</span>
+        <span class="text-[10px] sm:text-[11px] text-rose-600/80 mt-0.5">쉬어가고 싶을 때</span>
+      </button>
+
+      <!-- Anxious -->
+      <button onclick="selectEmotion('anxious')" id="btn-anxious" class="emotion-btn flex flex-col items-center justify-center p-3.5 sm:p-4 rounded-2xl border-2 border-sky-200/80 bg-white hover:bg-sky-50/80 active:scale-95 transition-all shadow-sm touch-manipulation">
+        <span class="text-2xl sm:text-3xl mb-1">😰</span>
+        <span class="font-bold text-xs sm:text-sm text-sky-900">불안하고 스트레스</span>
+        <span class="text-[10px] sm:text-[11px] text-sky-600/80 mt-0.5">시험 압박감이 클 때</span>
+      </button>
+    </div>
+
+    <!-- Quote Card Area -->
+    <div id="quote-container" class="w-full relative min-h-[240px] flex items-center justify-center">
+      <!-- Default Placeholder Card -->
+      <div id="quote-placeholder" class="w-full bg-white border border-dashed border-gray-300 rounded-3xl p-6 sm:p-8 text-center text-gray-400 flex flex-col items-center justify-center gap-3">
+        <i data-lucide="sparkles" class="w-8 h-8 sm:w-10 sm:h-10 text-amber-400 animate-pulse"></i>
+        <p class="text-sm sm:text-base font-gowun">위의 감정 버튼을 누르면 따뜻한 명언 한 마디가 찾아옵니다.</p>
+      </div>
+
+      <!-- Active Display Card -->
+      <div id="quote-card" class="hidden w-full bg-white border border-amber-100 rounded-3xl p-6 sm:p-8 md:p-10 shadow-lg relative overflow-hidden transition-all duration-300">
+        <!-- Top Tag & Decorator -->
+        <div class="flex justify-between items-center mb-4 sm:mb-6">
+          <span id="quote-category-tag" class="px-3 py-1 rounded-full text-xs font-semibold"></span>
+          <i data-lucide="quote" class="w-6 h-6 sm:w-8 sm:h-8 text-amber-300 opacity-60"></i>
+        </div>
+
+        <!-- Quote Content -->
+        <div class="mb-6 sm:mb-8 min-h-[80px] flex flex-col justify-center">
+          <p id="quote-text" class="text-base sm:text-lg md:text-xl font-gowun font-bold text-gray-800 leading-relaxed break-keep mb-3">
+            <!-- Text inserted via JS -->
+          </p>
+          <p id="quote-author" class="text-xs sm:text-sm text-gray-500 font-sans font-medium text-right">
+            <!-- Author inserted via JS -->
+          </p>
+        </div>
+
+        <!-- Action Buttons Bar -->
+        <div class="pt-4 border-t border-gray-100/80 flex flex-row items-center justify-between gap-2">
+          <!-- Copy Button -->
+          <button onclick="copyCurrentQuote()" class="flex items-center justify-center gap-1.5 px-3.5 py-2.5 text-xs sm:text-sm font-medium text-gray-600 hover:text-purple-600 hover:bg-purple-50 active:scale-95 rounded-xl transition touch-manipulation">
+            <i data-lucide="copy" class="w-4 h-4"></i>
+            <span>문구 복사</span>
+          </button>
+
+          <!-- Refresh Quote Button -->
+          <button onclick="refreshQuote()" class="flex items-center justify-center gap-2 px-4 py-2.5 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-bold text-white bg-amber-500 hover:bg-amber-600 active:scale-95 rounded-xl transition shadow-md shadow-amber-200 touch-manipulation">
+            <i data-lucide="rotate-cw" class="w-4 h-4"></i>
+            <span>다른 명언 보기</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="w-full max-w-4xl mx-auto px-4 py-5 border-t border-amber-100/70 text-center text-[11px] sm:text-xs text-gray-400">
+    <p class="font-gowun leading-relaxed">"당신이 쏟아부은 시간은 결코 사라지지 않고, 차곡차곡 쌓여 빛나는 교단으로 인도할 것입니다."</p>
+    <p class="mt-1">© 마음 쉼표 - 임용고시 준비생을 위한 감정 명언 추천 앱</p>
+  </footer>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="hidden fixed bottom-8 left-1/2 -translate-x-1/2 z-50 bg-gray-900/90 backdrop-blur-md text-white text-xs sm:text-sm px-5 py-3 rounded-full shadow-2xl flex items-center gap-2 w-max max-w-[90vw]">
+    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+    <span id="toast-message">클립보드에 복사되었습니다.</span>
+  </div>
+
+  <!-- Manage Quotes Modal -->
+  <div id="manage-modal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden fade-in">
+      
+      <!-- Modal Header -->
+      <div class="p-4 sm:p-5 border-b border-gray-100 flex justify-between items-center bg-amber-50/50">
+        <div class="flex items-center gap-2">
+          <i data-lucide="database" class="w-5 h-5 text-purple-600"></i>
+          <h3 class="font-bold text-base sm:text-lg text-gray-800">명언 목록 관리</h3>
+        </div>
+        <button onclick="toggleManageModal()" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 touch-manipulation">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-4 sm:p-6 overflow-y-auto flex-grow space-y-5 sm:space-y-6">
+
+        <!-- Add New Quote Form -->
+        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200/80">
+          <h4 class="font-bold text-xs sm:text-sm text-gray-700 mb-2.5 flex items-center gap-1.5">
+            <i data-lucide="plus-circle" class="w-4 h-4 text-purple-600"></i>
+            새로운 응원 명언 추가
+          </h4>
+          <form id="add-quote-form" onsubmit="handleAddQuote(event)" class="space-y-2.5">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <div>
+                <label class="block text-[11px] font-medium text-gray-600 mb-1">감정 분류</label>
+                <select id="new-emotion" class="w-full text-xs sm:text-sm border border-gray-300 rounded-xl p-2.5 focus:ring-2 focus:ring-purple-400 focus:outline-none bg-white">
+                  <option value="happy">😊 기쁘고 행복함</option>
+                  <option value="sad">😢 슬프고 우울함</option>
+                  <option value="burnout">☕ 지치고 번아웃</option>
+                  <option value="anxious">😰 불안하고 스트레스</option>
+                </select>
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-[11px] font-medium text-gray-600 mb-1">발언자 / 출처</label>
+                <input type="text" id="new-author" placeholder="예: 헬렌 켈러 / 선배 교사의 한마디" required class="w-full text-xs sm:text-sm border border-gray-300 rounded-xl p-2.5 focus:ring-2 focus:ring-purple-400 focus:outline-none bg-white" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-[11px] font-medium text-gray-600 mb-1">명언 / 격려 문구 내용</label>
+              <textarea id="new-text" rows="2" placeholder="힘이 되는 따뜻한 문장을 입력하세요..." required class="w-full text-xs sm:text-sm border border-gray-300 rounded-xl p-2.5 focus:ring-2 focus:ring-purple-400 focus:outline-none bg-white resize-none"></textarea>
+            </div>
+            <div class="flex justify-end pt-1">
+              <button type="submit" class="w-full sm:w-auto px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 touch-manipulation">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                명언 추가하기
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Filter & List Header -->
+        <div>
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
+            <h4 class="font-bold text-xs sm:text-sm text-gray-700">등록된 명언 목록 (<span id="total-quote-count">0</span>개)</h4>
+            <div class="flex gap-1 bg-gray-100 p-1 rounded-xl text-xs w-full sm:w-auto overflow-x-auto">
+              <button onclick="filterManageList('all')" id="tab-all" class="manage-tab-btn flex-1 sm:flex-initial px-2.5 py-1 rounded-lg font-medium bg-white shadow-sm text-gray-800 text-center whitespace-nowrap">전체</button>
+              <button onclick="filterManageList('happy')" id="tab-happy" class="manage-tab-btn flex-1 sm:flex-initial px-2.5 py-1 rounded-lg font-medium text-gray-500 text-center whitespace-nowrap">기쁨</button>
+              <button onclick="filterManageList('sad')" id="tab-sad" class="manage-tab-btn flex-1 sm:flex-initial px-2.5 py-1 rounded-lg font-medium text-gray-500 text-center whitespace-nowrap">슬픔</button>
+              <button onclick="filterManageList('burnout')" id="tab-burnout" class="manage-tab-btn flex-1 sm:flex-initial px-2.5 py-1 rounded-lg font-medium text-gray-500 text-center whitespace-nowrap">번아웃</button>
+              <button onclick="filterManageList('anxious')" id="tab-anxious" class="manage-tab-btn flex-1 sm:flex-initial px-2.5 py-1 rounded-lg font-medium text-gray-500 text-center whitespace-nowrap">불안</button>
+            </div>
+          </div>
+
+          <!-- Quote Items List Container -->
+          <div id="manage-quote-list" class="space-y-2 max-h-[260px] sm:max-h-[300px] overflow-y-auto pr-1">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-3.5 sm:p-4 border-t border-gray-100 bg-gray-50 flex justify-between items-center text-xs text-gray-500">
+        <button onclick="resetDefaultQuotes()" class="text-rose-600 hover:underline flex items-center gap-1 p-1">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          초기 명언 데이터로 리셋
+        </button>
+        <button onclick="toggleManageModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-xl transition">
+          닫기
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- JavaScript Application Logic -->
+  <script>
+    // Initial Seed Data: Min 20 quotes per emotion category (80+ Total)
+    const initialQuotes = {
+      happy: [
+        { id: 'h1', text: "합격의 순간 맛볼 성취감은 지금 흘린 땀방울에 정확히 비례합니다. 오늘 잘해내셨어요!", author: "선배 합격 교사" },
+        { id: 'h2', text: "기쁨은 기쁨을 끌어당깁니다. 오늘 느낀 작은 기쁨을 잊지 말고 마음에 저축해 두세요.", author: "임용 멘토" },
+        { id: 'h3', text: "당신이 교단에 서서 아이들과 함께 웃을 날이 멀지 않았습니다.", author: "교육학의 지혜" },
+        { id: 'h4', text: "성공은 매일 반복한 작은 노력들의 합이다.", author: "로버트 콜리어" },
+        { id: 'h5', text: "자신을 믿어라. 자신의 능력을 신뢰하라. 신중하면서도 겸손한 자부심 없이 당신은 성공할 수 없다.", author: "노먼 빈센트 필" },
+        { id: 'h6', text: "오늘 풀었던 그 문제, 바로 시험에 나올 대박 문제일 지도 몰라요!", author: "응원하는 마음" },
+        { id: 'h7', text: "배움이 즐거운 순간, 당신은 이미 훌륭한 선생님의 자질을 갖춘 것입니다.", author: "교육철학" },
+        { id: 'h8', text: "행복은 이미 완성된 것이 아니다. 그것은 당신의 행동으로부터 나온다.", author: "달라이 라마" },
+        { id: 'h9', text: "오늘의 충만함과 좋은 기운이 2차 면접과 실기까지 쭉 이어질 거예요.", author: "합격의 기운" },
+        { id: 'h10', text: "무엇인가를 간절히 원할 때 온 우주는 당신의 소원이 실현되도록 돕는다.", author: "파울로 코엘료" },
+        { id: 'h11', text: "몰입의 기쁨을 느낀 오늘 하루, 스스로를 꼭 칭찬해 주세요.", author: "마음 쉼표" },
+        { id: 'h12', text: "당신의 눈빛에서 아이들을 향한 진심 어린 따뜻함이 느껴집니다.", author: "미래의 제자들" },
+        { id: 'h13', text: "작은 성취들이 모여 거대한 합격이라는 기적을 만들어냅니다.", author: "임용 격려집" },
+        { id: 'h14', text: "슬럼프를 이겨내고 얻은 자신감은 절대 무너지지 않는 자산이 됩니다.", author: "공부의 정석" },
+        { id: 'h15', text: "할 수 있다고 믿는 사람은 결국 해내고야 맙니다.", author: "버질" },
+        { id: 'h16', text: "웃음은 두 사람 사이의 가장 가까운 거리다. 예비 선생님의 미소가 빛납니다.", author: "빅토르 보르게" },
+        { id: 'h17', text: "오늘 모의고사 성적이 올라 기쁘다면, 이 좋은 텐션을 유지해서 끝까지 달려봐요!", author: "스터디원 일동" },
+        { id: 'h18', text: "자신의 한계를 돌파했을 때 느끼는 희열을 잊지 마세요.", author: "스포츠 심리학" },
+        { id: 'h19', text: "그대의 자질은 뛰어나다. 야망을 품고 그것을 향해 나아가라.", author: "랄프 왈도 에머슨" },
+        { id: 'h20', text: "당신은 누군가의 인생을 바꿀 빛나는 교육자가 될 것입니다.", author: "교직관 명언" },
+        { id: 'h21', text: "꿈을 이룰 수 있다는 가능성이 삶을 흥미롭게 만든다.", author: "파울로 코엘료" }
+      ],
+      sad: [
+        { id: 's1', text: "점수가 나오지 않아 눈물이 날 때도 있죠. 하지만 비 온 뒤 땅이 더 굳어지는 법입니다.", author: "위로의 편지" },
+        { id: 's2', text: "모든 꽃이 같은 계절에 피지 않습니다. 당신의 계절은 곧 도래합니다.", author: "김난도" },
+        { id: 's3', text: "슬픔을 느낀다는 것은 당신이 진심으로 이 시험을 대하고 있다는 증거입니다.", author: "임용 상담소" },
+        { id: 's4', text: "겨울이 오면 봄도 멀지 않으리.", author: "퍼시 비시 셸리" },
+        { id: 's5', text: "지금의 실망감은 더 큰 성장을 위한 영양분이 되어줄 것입니다. 툭툭 털어내세요.", author: "선배 교사" },
+        { id: 's6', text: "아픔은 나를 강하게 만들고, 눈물은 나를 더 맑게 만든다.", author: "마음 편지" },
+        { id: 's7', text: "당신이 걸어온 길이 결코 헛되지 않았음을 결과가 증명해 줄 날이 옵니다.", author: "희망의 메시지" },
+        { id: 's8', text: "밤이 깊을수록 별은 더욱 밝게 빛납니다.", author: "정호승" },
+        { id: 's9', text: "자책하지 마세요. 오늘 하루 최선을 다해 견뎌낸 것만으로도 당신은 충분히 훌륭합니다.", author: "따뜻한 손길" },
+        { id: 's10', text: "지금 넘어졌다면 잠시 누워서 하늘을 바라보세요. 다시 일어설 힘이 생길 때까지.", author: "휴식의 명언" },
+        { id: 's11', text: "고난은 당신을 꺾으려고 오는 것이 아니라, 단단하게 만들기 위해 옵니다.", author: "C.S. 루이스" },
+        { id: 's12', text: "틀린 문제는 내가 나중에 교단에서 아이들에게 가르쳐 줄 귀중한 경험이 됩니다.", author: "수험생 응원단" },
+        { id: 's13', text: "울어도 괜찮습니다. 다만 울고 난 뒤에는 다시 신발 끈을 매어봅시다.", author: "합격 수기 중" },
+        { id: 's14', text: "인생에서 가장 큰 영광은 넘어지지 않는 것이 아니라 넘어질 때마다 다시 일어서는 것이다.", author: "넬슨 만델라" },
+        { id: 's15', text: "지금 느끼는 외로움과 막막함은 훌륭한 교육자가 되기 위한 깊은 통찰이 될 것입니다.", author: "교사 멘토링" },
+        { id: 's16', text: "당신은 당신이 생각하는 것보다 훨씬 더 강하고 따뜻한 사람입니다.", author: "A.A. 밀른" },
+        { id: 's17', text: "포기하고 싶은 순간, 바로 그 순간이 기적이 일어나는 지점입니다.", author: "마음 격려" },
+        { id: 's18', text: "누구나 한 번쯤은 자신만의 어두운 터널을 지납니다. 끝에는 반드시 빛이 기다립니다.", author: "삶의 지혜" },
+        { id: 's19', text: "오늘의 슬픔을 담담히 안아주세요. 내일은 더 굳건한 마음으로 공부할 수 있습니다.", author: "쉼터" },
+        { id: 's20', text: "당신이 흘린 눈물 한 방울마다 합격의 씨앗이 자라나고 있습니다.", author: "응원의 서신" }
+      ],
+      burnout: [
+        { id: 'b1', text: "쉬어가는 것도 공부의 일부입니다. 오늘은 책을 덮고 좋아하는 음식을 먹으며 푹 쉬세요.", author: "건강한 수험생활" },
+        { id: 'b2', text: "나무도 겨울에는 잎을 떨어뜨리고 휴식을 취합니다. 당신에게도 휴식이 필요합니다.", author: "자연의 이치" },
+        { id: 'b3', text: "지쳤다는 것은 지금까지 온 힘을 다해 달려왔다는 증거입니다. 고생 많으셨어요.", author: "따뜻한 위로" },
+        { id: 'b4', text: "멈추지 않는 한 얼마나 천천히 가느냐는 중요하지 않다.", author: "공자" },
+        { id: 'b5', text: "체력이 곧 정신력입니다. 맛있는 밥을 먹고 일찍 잠자리에 들기를 권합니다.", author: "임용 체력 팁" },
+        { id: 'b6', text: "마음의 배터리가 방전되었을 땐, 어떤 책도 눈에 들어오지 않죠. 충전이 먼저입니다.", author: "수험생 힐링" },
+        { id: 'b7', text: "휴식은 게으름이 아니라, 더 먼 길을 가기 위한 지혜로운 준비입니다.", author: "존 르카레" },
+        { id: 'b8', text: "공부하기 싫은 날엔 30분만 산책을 다녀오세요. 바람이 마음을 씻어줄 거예요.", author: "마음 쉼표" },
+        { id: 'b9', text: "완벽하지 않아도 괜찮습니다. 오늘 할 수 있는 만큼만 내려놓고 걸어가세요.", author: "마음 챙김" },
+        { id: 'b10', text: "에너지가 고갈되었을 땐 스스로에게 격렬하게 아무것도 하지 않을 자유를 주세요.", author: "휴식의 기술" },
+        { id: 'b11', text: "마라톤에서 페이스 조절은 필수입니다. 임용은 100m 달리기가 아닙니다.", author: "합격 전략" },
+        { id: 'b12', text: "오늘 하루 쉬어간다고 해서 당신의 합격이 취소되지 않습니다.", author: "선배의 조언" },
+        { id: 'b13', text: "당신의 몸과 마음이 보내는 신호에 귀를 기울이세요. 잠시 숨을 고르세요.", author: "건강 에세이" },
+        { id: 'b14', text: "지친 자신을 비난하지 마세요. 그동안 얼마나 열심히 달려왔는지 스스로 알아주세요.", author: "자기자비" },
+        { id: 'b15', text: "따뜻한 차 한 잔과 깊은 호흡으로 지친 마음을 어루만져 주세요.", author: "힐링 루틴" },
+        { id: 'b16', text: "쉬고 나면 더 선명한 정신으로 문제를 풀 수 있게 됩니다.", author: "뇌과학의 조언" },
+        { id: 'b17', text: "지쳤을 때는 좋아하는 음악을 듣고 일찍 불을 꺼보세요.", author: "소소한 일상" },
+        { id: 'b18', text: "열정에도 휴식기가 필요합니다. 차분히 다독여 다시 불꽃을 피워내면 됩니다.", author: "동기부여" },
+        { id: 'b19', text: "당신의 삶은 시험 하나보다 훨씬 귀하고 다채롭습니다.", author: "인생의 가치" },
+        { id: 'b20', text: "지친 나에게 오늘 하루 '참 잘했어'라고 따뜻하게 말해줍시다.", author: "나에게 쓰는 편지" }
+      ],
+      anxious: [
+        { id: 'a1', text: "불안함은 당신이 이 시험을 참 간절히 바라고 있다는 뜻입니다. 당신의 열정을 믿으세요.", author: "심리학의 위로" },
+        { id: 'a2', text: "걱정을 해서 걱정이 사라지면 걱정이 없겠네. 미래보다 현재의 한 페이지에 집중하세요.", author: "티베트 속담" },
+        { id: 'a3', text: "시험 당일, 당신은 당신이 아는 것을 유감없이 발휘하게 될 것입니다.", author: "합격의 확신" },
+        { id: 'a4', text: "바람이 강하게 불수록 나무는 뿌리를 더 깊게 내립니다.", author: "빅토르 위고" },
+        { id: 'a5', text: "남들과 비교하지 마세요. 당신만의 페이스로 당신의 길을 걸어가면 됩니다.", author: "수험생 멘탈관리" },
+        { id: 'a6', text: "불안이 찾아올 땐 깊게 숨을 세 번 쉬고 '나는 잘하고 있다'고 말해보세요.", author: "마음 안정법" },
+        { id: 'a7', text: "두려움은 당신의 마인드가 만들어낸 환상일 뿐입니다. 실제 당신은 훨씬 당당합니다.", author: "동기부여" },
+        { id: 'a8', text: "시험지는 당신의 인격이 아니라 단순한 지식을 측정할 뿐입니다. 담대해지세요.", author: "선배 교사의 편지" },
+        { id: 'a9', text: "내일의 걱정으로 오늘의 평온을 낭비하지 마세요.", author: "스토아 철학" },
+        { id: 'a10', text: "당신이 지금까지 푼 수많은 문제집과 서브노트가 당신의 든든한 방패입니다.", author: "공부의 흔적" },
+        { id: 'a11', text: "불안은 파도와 같아서 억지로 막을 수 없지만, 타는 법을 배울 수는 있습니다.", author: "존 카밧진" },
+        { id: 'a12', text: "아직 일어나지 않은 일을 미리 걱정하며 에너지를 쏟지 마세요.", author: "행복의 기술" },
+        { id: 'a13', text: "합격자 발표 날 환하게 웃고 있을 당신의 모습을 상상해 보세요.", author: "긍정 시각화" },
+        { id: 'a14', text: "당신은 혼자가 아닙니다. 수많은 이들이 당신의 당당한 출발을 응원하고 있습니다.", author: "동료들의 응원" },
+        { id: 'a15', text: "떨리는 마음에 집중하기보다, 내가 준비한 지식을 쏟아붓는 것에만 집중해 보세요.", author: "멘탈 코칭" },
+        { id: 'a16', text: "자신감은 위대한 과업의 첫 번째 요건이다.", author: "새뮤얼 존슨" },
+        { id: 'a17', text: "흔들리지 않고 피는 꽃이 어디 있으랴. 이 흔들림 끝에 결실이 맺힙니다.", author: "도종환" },
+        { id: 'a18', text: "불안할 때일수록 단어 1개, 개념 1개를 확실히 보는 것이 가장 강력한 약입니다.", author: "수험 행동강령" },
+        { id: 'a19', text: "당신의 노력은 배신하지 않습니다. 자신을 온전히 신뢰하세요.", author: "교육학 명언" },
+        { id: 'a20', text: "용기란 두려움이 없는 것이 아니라 두려움보다 더 중요한 무언가가 있음을 판단하는 것이다.", author: "앰브로스 레드문" }
+      ]
+    };
+
+    // Global App State
+    let quotesData = {};
+    let currentEmotion = null;
+    let currentQuote = null;
+    let manageFilter = 'all';
+
+    const emotionConfig = {
+      happy: {
+        title: "기쁘고 행복함",
+        bgClass: "bg-amber-50/70",
+        borderClass: "border-amber-200",
+        tagClass: "bg-amber-100 text-amber-800",
+        btnActive: "ring-2 ring-amber-400 bg-amber-50"
+      },
+      sad: {
+        title: "슬프고 우울함",
+        bgClass: "bg-indigo-50/70",
+        borderClass: "border-indigo-200",
+        tagClass: "bg-indigo-100 text-indigo-800",
+        btnActive: "ring-2 ring-indigo-400 bg-indigo-50"
+      },
+      burnout: {
+        title: "지치고 번아웃",
+        bgClass: "bg-rose-50/70",
+        borderClass: "border-rose-200",
+        tagClass: "bg-rose-100 text-rose-800",
+        btnActive: "ring-2 ring-rose-400 bg-rose-50"
+      },
+      anxious: {
+        title: "불안하고 스트레스",
+        bgClass: "bg-sky-50/70",
+        borderClass: "border-sky-200",
+        tagClass: "bg-sky-100 text-sky-800",
+        btnActive: "ring-2 ring-sky-400 bg-sky-50"
+      }
+    };
+
+    // Init & LocalStorage Load
+    function initData() {
+      const stored = localStorage.getItem('imyong_quotes_data');
+      if (stored) {
+        try {
+          quotesData = JSON.parse(stored);
+        } catch (e) {
+          quotesData = JSON.parse(JSON.stringify(initialQuotes));
+        }
+      } else {
+        quotesData = JSON.parse(JSON.stringify(initialQuotes));
+        saveDataToStorage();
+      }
+    }
+
+    function saveDataToStorage() {
+      localStorage.setItem('imyong_quotes_data', JSON.stringify(quotesData));
+    }
+
+    // Select Emotion
+    function selectEmotion(emotion) {
+      currentEmotion = emotion;
+
+      document.querySelectorAll('.emotion-btn').forEach(btn => {
+        btn.classList.remove('ring-2', 'ring-amber-400', 'ring-indigo-400', 'ring-rose-400', 'ring-sky-400', 'bg-amber-50', 'bg-indigo-50', 'bg-rose-50', 'bg-sky-50');
+      });
+
+      const activeBtn = document.getElementById(`btn-${emotion}`);
+      if (activeBtn) {
+        activeBtn.classList.add(...emotionConfig[emotion].btnActive.split(' '));
+      }
+
+      refreshQuote();
+    }
+
+    // Refresh & Random Pick
+    function refreshQuote() {
+      if (!currentEmotion) return;
+
+      const list = quotesData[currentEmotion];
+      if (!list || list.length === 0) {
+        showToast("해당 감정에 등록된 명언이 없습니다. 명언을 추가해주세요!");
+        return;
+      }
+
+      let randomIndex = Math.floor(Math.random() * list.length);
+      if (list.length > 1 && currentQuote && list[randomIndex].id === currentQuote.id) {
+        randomIndex = (randomIndex + 1) % list.length;
+      }
+
+      currentQuote = list[randomIndex];
+
+      const placeholder = document.getElementById('quote-placeholder');
+      const card = document.getElementById('quote-card');
+      const textElem = document.getElementById('quote-text');
+      const authorElem = document.getElementById('quote-author');
+      const tagElem = document.getElementById('quote-category-tag');
+
+      placeholder.classList.add('hidden');
+      
+      card.classList.remove('hidden', 'fade-in');
+      void card.offsetWidth;
+      card.classList.add('fade-in');
+
+      const config = emotionConfig[currentEmotion];
+      card.className = `w-full ${config.bgClass} border-2 ${config.borderClass} rounded-3xl p-6 sm:p-8 md:p-10 shadow-lg relative overflow-hidden fade-in transition-all duration-300`;
+      
+      tagElem.className = `px-3 py-1 rounded-full text-xs font-semibold ${config.tagClass}`;
+      tagElem.textContent = config.title;
+
+      textElem.textContent = `"${currentQuote.text}"`;
+      authorElem.textContent = `- ${currentQuote.author}`;
+    }
+
+    // Copy Quote
+    function copyCurrentQuote() {
+      if (!currentQuote) return;
+      const textToCopy = `"${currentQuote.text}" - ${currentQuote.author} (임용고시 응원 명언)`;
+      
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(textToCopy).then(() => {
+          showToast("명언 문구가 클립보드에 복사되었습니다 📋");
+        }).catch(() => fallbackCopy(textToCopy));
+      } else {
+        fallbackCopy(textToCopy);
+      }
+    }
+
+    function fallbackCopy(text) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        showToast("명언 문구가 클립보드에 복사되었습니다 📋");
+      } catch (err) {
+        showToast("복사에 실패했습니다. 수동으로 복사해주세요.");
+      }
+      document.body.removeChild(textArea);
+    }
+
+    // Toast Notification
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-message');
+      toastMsg.textContent = msg;
+      
+      toast.classList.remove('hidden', 'toast-anim');
+      void toast.offsetWidth;
+      toast.classList.add('toast-anim');
+
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 2500);
+    }
+
+    // Modal Handler
+    function toggleManageModal() {
+      const modal = document.getElementById('manage-modal');
+      const isHidden = modal.classList.contains('hidden');
+      
+      if (isHidden) {
+        modal.classList.remove('hidden');
+        renderManageList();
+      } else {
+        modal.classList.add('hidden');
+      }
+    }
+
+    // Add Quote
+    function handleAddQuote(e) {
+      e.preventDefault();
+      const emotion = document.getElementById('new-emotion').value;
+      const author = document.getElementById('new-author').value.trim();
+      const text = document.getElementById('new-text').value.trim();
+
+      if (!author || !text) return;
+
+      const newId = 'custom_' + Date.now();
+      const newQuoteObj = { id: newId, text, author };
+
+      quotesData[emotion].unshift(newQuoteObj);
+      saveDataToStorage();
+
+      document.getElementById('new-author').value = '';
+      document.getElementById('new-text').value = '';
+
+      showToast("새로운 응원 명언이 추가되었습니다!");
+      renderManageList();
+
+      if (currentEmotion === emotion) {
+        refreshQuote();
+      }
+    }
+
+    // Delete Quote
+    function deleteQuote(emotion, id) {
+      quotesData[emotion] = quotesData[emotion].filter(q => q.id !== id);
+      saveDataToStorage();
+      showToast("선택한 명언이 삭제되었습니다.");
+      renderManageList();
+
+      if (currentQuote && currentQuote.id === id) {
+        if (quotesData[emotion].length > 0) {
+          refreshQuote();
+        } else {
+          document.getElementById('quote-card').classList.add('hidden');
+          document.getElementById('quote-placeholder').classList.remove('hidden');
+          currentQuote = null;
+        }
+      }
+    }
+
+    // Filter Manage Tab
+    function filterManageList(category) {
+      manageFilter = category;
+      document.querySelectorAll('.manage-tab-btn').forEach(btn => {
+        btn.classList.remove('bg-white', 'shadow-sm', 'text-gray-800');
+        btn.classList.add('text-gray-500');
+      });
+      const activeTab = document.getElementById(`tab-${category}`);
+      if (activeTab) {
+        activeTab.classList.add('bg-white', 'shadow-sm', 'text-gray-800');
+        activeTab.classList.remove('text-gray-500');
+      }
+      renderManageList();
+    }
+
+    // Render Manage List
+    function renderManageList() {
+      const container = document.getElementById('manage-quote-list');
+      const totalCountElem = document.getElementById('total-quote-count');
+      container.innerHTML = '';
+
+      let itemsToRender = [];
+      let totalCount = 0;
+
+      Object.keys(quotesData).forEach(emo => {
+        totalCount += quotesData[emo].length;
+        if (manageFilter === 'all' || manageFilter === emo) {
+          quotesData[emo].forEach(q => {
+            itemsToRender.push({ ...q, emotion: emo });
+          });
+        }
+      });
+
+      totalCountElem.textContent = totalCount;
+
+      if (itemsToRender.length === 0) {
+        container.innerHTML = `<div class="text-center py-6 text-gray-400 text-xs font-gowun">등록된 명언이 없습니다.</div>`;
+        return;
+      }
+
+      itemsToRender.forEach(item => {
+        const itemCard = document.createElement('div');
+        itemCard.className = "flex items-start justify-between gap-3 p-3 bg-white border border-gray-100 rounded-xl hover:border-gray-200 transition text-xs";
+        
+        const config = emotionConfig[item.emotion];
+        
+        itemCard.innerHTML = `
+          <div class="space-y-1 flex-grow">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold ${config.tagClass}">${config.title}</span>
+              <span class="font-medium text-gray-500 text-[11px]">${escapeHtml(item.author)}</span>
+            </div>
+            <p class="text-gray-700 font-gowun leading-snug break-all">"${escapeHtml(item.text)}"</p>
+          </div>
+          <button onclick="deleteQuote('${item.emotion}', '${item.id}')" class="text-gray-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition shrink-0 touch-manipulation" title="삭제">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        `;
+        container.appendChild(itemCard);
+      });
+
+      lucide.createIcons();
+    }
+
+    // Reset Data
+    function resetDefaultQuotes() {
+      if (confirm("정말로 초기 명언 데이터로 전체 리셋하시겠습니까?")) {
+        quotesData = JSON.parse(JSON.stringify(initialQuotes));
+        saveDataToStorage();
+        showToast("기본 명언 데이터로 리셋되었습니다.");
+        renderManageList();
+        if (currentEmotion) refreshQuote();
+      }
+    }
+
+    // Utility: Escape HTML
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    // Window Load Lifecycle
+    window.onload = function() {
+      initData();
+      lucide.createIcons();
+    };
+  </script>
+</body>
+</html>
