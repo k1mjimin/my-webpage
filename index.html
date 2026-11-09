@@ -184,10 +184,9 @@
       </ul>
     </section>
 
- <section id="section-projects">
-  <!-- 프로젝트 섹션 전용 스타일 지정 -->
+<section id="section-projects">
+  <!-- 프로젝트 전용 CSS 스타일 -->
   <style>
-    /* 프로젝트 영역 전체 */
     #section-projects {
       max-width: 1000px;
       margin: 40px auto;
@@ -200,17 +199,17 @@
       color: #1a202c;
     }
 
-    /* 1. 주차별 큰 네모 박스 (9주차, 10주차 등) */
+    /* 주차별 큰 테두리 상자 */
     #section-projects .week-container {
-      background-color: #f8fafc;        /* 연한 회색/파란색 배경 */
-      border: 2px solid #cbd5e1;        /* 눈에 잘 보이는 또렷한 테두리 */
-      border-radius: 16px;              /* 모서리 라운딩 */
+      background-color: #f8fafc;
+      border: 2px solid #cbd5e1;
+      border-radius: 16px;
       padding: 24px;
       margin-bottom: 32px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); /* 경계 구분을 위한 약간의 그림자 */
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     }
 
-    /* 큰 박스 상단 제목 */
+    /* 주차 제목 */
     #section-projects .week-title {
       font-size: 1.3rem;
       font-weight: 700;
@@ -218,21 +217,21 @@
       margin-top: 0;
       margin-bottom: 20px;
       padding-bottom: 10px;
-      border-bottom: 2px solid #94a3b8; /* 제목 밑 강조선 */
+      border-bottom: 2px solid #94a3b8;
     }
 
-    /* 2. 큰 박스 안의 작은 카드 그리드 배치 */
+    /* 작은 카드들을 가로 배치하는 그리드 */
     #section-projects .project-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: 16px;
     }
 
-    /* 3. 개별 프로젝트 작은 네모 카드 */
+    /* 작은 프로젝트 카드 네모 상자 */
     #section-projects .project-card {
-      background-color: #ffffff;        /* 흰색 바탕 */
-      border: 1px solid #94a3b8;        /* 카드 테두리 선명하게 */
-      border-radius: 10px;              /* 카드 모서리 라운딩 */
+      background-color: #ffffff;
+      border: 1px solid #94a3b8;
+      border-radius: 10px;
       padding: 18px;
       display: flex;
       flex-direction: column;
@@ -241,21 +240,18 @@
       transition: transform 0.2s, box-shadow 0.2s;
     }
 
-    /* 카드 마우스 호버 효과 */
     #section-projects .project-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
       border-color: #2563eb;
     }
 
-    /* 카드 내부 제목 */
     #section-projects .project-card h4 {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       margin: 0 0 10px 0;
       color: #0f172a;
     }
 
-    /* 카드 내부 설명 */
     #section-projects .project-card p {
       font-size: 0.9rem;
       color: #475569;
@@ -264,12 +260,11 @@
       flex-grow: 1;
     }
 
-    /* 결과물 보기 버튼 */
     #section-projects .btn-link {
       display: block;
       text-align: center;
-      background-color: #2563eb;        /* 파란색 버튼 */
-      color: #ffffff !important;        /* 흰색 글자 */
+      background-color: #2563eb;
+      color: #ffffff !important;
       padding: 10px 14px;
       border-radius: 6px;
       text-decoration: none;
@@ -285,9 +280,9 @@
 
   <h2>프로젝트</h2>
 
-  <!-- [1] 9주차 큰 박스 -->
+  <!-- [1] 9주차 프로젝트 -->
   <div class="week-container">
-    <h3 class="week-title">9주차</h3>
+    <h3 class="week-title">9주차 프로젝트</h3>
     <div class="project-grid">
 
       <div class="project-card">
@@ -311,7 +306,7 @@
     </div>
   </div>
 
-  <!-- [2] 10주차 프로젝트 큰 박스 -->
+  <!-- [2] 10주차 프로젝트 -->
   <div class="week-container">
     <h3 class="week-title">10주차 프로젝트</h3>
     <div class="project-grid">
@@ -355,43 +350,42 @@
     </div>
   </div>
 
-  <!-- [3] 11주차 프로젝트 큰 박스 -->
+  <!-- [3] 11주차 프로젝트 (오류 수정 완료) -->
   <div class="week-container">
     <h3 class="week-title">11주차 프로젝트</h3>
     <div class="project-grid">
- </div>
-    
+
       <div class="project-card">
         <h4>3D 주사위 시뮬레이터와 결과 집계 차트 만들기</h4>
         <p>3D 회전 애니메이션 구현 및 확률 통계 표를 출력하는 앱</p>
-        <a href="dice-simulator.html" class="btn-link">결과물 보기</a>
+        <a href="dice-simulator.html" target="_blank" class="btn-link">결과물 보기</a>
       </div>
 
       <div class="project-card">
-        <h4>퀴즈형 반복학습 초등학생용 속담 이어서 말하기 게임</h4>
-        <p>속담의 앞구절이 제시되면 뒷구절을 맞혀 정답을 완성하는 퀴</p>
-        <a href="proverb-game.html" class="btn-link">결과물 보기</a>
+        <h4>속담 이어서 말하기 게임</h4>
+        <p>속담의 앞구절을 보고 뒷구절을 맞혀 정답을 완성하는 퀴즈 게임</p>
+        <a href="proverb-game.html" target="_blank" class="btn-link">결과물 보기</a>
       </div>
 
       <div class="project-card">
         <h4>인터랙티브 수학 연산 학습 웹 앱</h4>
-        <p>수학 대모험 게임</p>
-        <a href="math-quest.html" class="btn-link">결과물 보기</a>
+        <p>재미있게 연산을 학습할 수 있는 수학 대모험 게임</p>
+        <a href="math-quest.html" target="_blank" class="btn-link">결과물 보기</a>
       </div>
 
       <div class="project-card">
         <h4>초등학교 저학년 시계 읽기 연습 앱</h4>
-        <p>초등학교 수학 보조 교구 웹 앱</p>
-        <a href="clock-practice.html" class="btn-link">결과물 보기</a>
+        <p>시계 바늘과 시간을 맞혀보는 수학 보조 교구 웹 앱</p>
+        <a href="clock-practice.html" target="_blank" class="btn-link">결과물 보기</a>
       </div>
 
       <div class="project-card">
         <h4>AI 캐치마인드 앱</h4>
-        <p>대화형 그림 퀴즈 웹 </p>
-        <a href="https://share.gemini.google/vzxQ4loXSn45" class="btn-link">결과물 보기</a>
+        <p>대화형 그림 퀴즈 웹 앱</p>
+        <a href="https://share.gemini.google/vzxQ4loXSn45" target="_blank" class="btn-link">결과물 보기</a>
       </div>
 
-     <div class="project-card">
+      <div class="project-card">
         <h4>칼로리 계산 앱</h4>
         <p>음식 사진 칼로리 자동 계산 앱</p>
         <a href="https://claude.ai/artifact/4URrQct3QeAsv6A9shXCbV" target="_blank" class="btn-link">결과물 보기</a>
