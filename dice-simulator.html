@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>3D 주사위 확률 실험실</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{--bg:#eef3f1;--sf:#fff;--tx:#17302b;--mu:#5d7570;--ac:#c8372d;--bar:#1f6f66;--bd:#cfdcd8;--felt:#1d5a4f;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a18;--sf:#182724;--sf:#182724;--tx:#e6f0ed;--mu:#8fa9a3;--ac:#ff6b5e;--bar:#4cc2b2;--bd:#2c4640;--felt:#12403a}}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",sans-serif;line-height:1.5}
+main{max-width:1080px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.5rem;margin:0 0 4px;letter-spacing:-.02em}
+.sub{color:var(--mu);margin:0 0 18px;font-size:.95rem}
+.grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:16px}
+@media(max-width:820px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:14px}
+#stage{height:300px;border-radius:8px;background:radial-gradient(ellipse at 50% 60%,#2a7a6c,var(--felt));overflow:hidden;position:relative}
+#stage canvas{width:100%;height:100%;display:block}
+#result{position:absolute;left:12px;top:10px;color:#fff;font-size:.9rem;font-weight:600;text-shadow:0 1px 3px #0008}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;align-items:center}
+button{font:inherit;border:1px solid var(--bd);background:var(--sf);color:var(--tx);padding:9px 14px;border-radius:8px;cursor:pointer;min-height:40px}
+button:hover{border-color:var(--bar)}button:focus-visible,input:focus-visible{outline:3px solid var(--bar);outline-offset:2px}
+button.pri{background:var(--ac);border-color:var(--ac);color:#fff;font-weight:700}
+button:disabled{opacity:.5;cursor:not-allowed}
+input[type=number]{font:inherit;width:100px;padding:9px;border:1px solid var(--bd);border-radius:8px;background:var(--sf);color:var(--tx)}
+.total{display:flex;gap:16px;align-items:baseline;margin-bottom:8px}
+.total b{font-size:2rem;font-variant-numeric:tabular-nums}
+.total span{color:var(--mu)}
+#chart{width:100%;height:220px;display:block}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-variant-numeric:tabular-nums;font-size:.92rem}
+th,td{padding:6px 8px;text-align:right;border-bottom:1px solid var(--bd)}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--mu);font-weight:600}
+select{font:inherit;padding:6px 8px;border:1px solid var(--bd);border-radius:8px;background:var(--sf);color:var(--tx)}
+.rng{display:flex;gap:8px;align-items:center;color:var(--mu);font-size:.88rem;margin-bottom:6px}
+.prog{margin-top:14px;padding-top:12px;border-top:1px solid var(--bd)}
+.pbar{height:8px;background:var(--bd);border-radius:4px;overflow:hidden}
+.pbar i{display:block;height:100%;width:0;background:var(--bar)}
+#ptxt{font-size:.9rem;margin:6px 0 8px}
+.runs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
+.runs div{border:1px solid var(--bd);border-radius:8px;padding:6px 2px;font-size:.8rem;color:var(--mu)}
+.runs b{display:block;font-size:1.15rem;color:var(--tx);font-variant-numeric:tabular-nums}
+.note{color:var(--mu);font-size:.82rem;margin:10px 0 0}
+</style>
+</head>
+<body>
+<main>
+<h1>3D 주사위 확률 실험실</h1>
+<p class="sub">주사위를 던져 각 눈의 출현 빈도가 이론값(16.7%)에 가까워지는 과정을 확인해 보세요.</p>
+<div class="grid">
+  <section class="panel">
+    <div id="stage"><div id="result">던져 보세요</div></div>
+    <div class="ctl">
+      <button class="pri" id="b1">1회 던지기</button>
+      <button id="b10">10회</button>
+      <button id="b100">100회</button>
+    </div>
+    <div class="ctl">
+      <input type="number" id="n" min="1" max="100000" value="1000" aria-label="사용자 지정 횟수">
+      <button id="bn">지정 횟수 던지기</button>
+      <button id="rs">초기화</button>
+    </div>
+    <div class="prog" aria-live="polite"><div class="pbar"><i id="pfill"></i></div><div id="ptxt">대기 중</div>
+      <div class="runs"><div>1회 던지기<b id="r1">0</b>번</div><div>10회<b id="r10">0</b>번</div><div>100회<b id="r100">0</b>번</div><div>지정 횟수<b id="rc">0</b>번</div></div></div>
+    <p class="note">1회는 3D 주사위가 실제로 굴러가며, 10회 이상은 결과를 빠르게 집계합니다. 마지막 결과 눈으로 주사위가 회전합니다.</p>
+  </section>
+  <section class="panel">
+    <div class="total"><b id="tot">0</b><span>회 실행</span></div>
+    <label class="rng">그래프 범위 <select id="rng"><option value="auto">자동 (최대값에 맞춤)</option><option value="fix">0~100% 고정</option></select></label>
+    <canvas id="chart" role="img" aria-label="눈별 출현 비율 막대그래프"></canvas>
+    <table>
+      <thead><tr><th>눈</th><th>횟수</th><th>비율</th><th>이론값과 차이</th></tr></thead>
+      <tbody id="tb"></tbody>
+    </table>
+  </section>
+</div>
+</main>
+<script>
+(function(){
+const counts=[0,0,0,0,0,0];let total=0,busy=false,gen=0;const runs={r1:0,r10:0,r100:0,rc:0};
+const $=id=>document.getElementById(id);
+/* ---------- Three.js ---------- */
+const stage=$('stage');
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+stage.appendChild(renderer.domElement);
+const scene=new THREE.Scene();
+const cam=new THREE.PerspectiveCamera(40,1,.1,100);cam.position.set(0,3.2,5.2);cam.lookAt(0,.4,0);
+scene.add(new THREE.AmbientLight(0xffffff,.65));
+const dl=new THREE.DirectionalLight(0xffffff,.85);dl.position.set(3,6,4);scene.add(dl);
+function face(n){
+  const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');
+  g.fillStyle='#fbf7ee';g.fillRect(0,0,128,128);
+  g.strokeStyle='#e0d8c6';g.lineWidth=6;g.strokeRect(3,3,122,122);
+  const P={1:[[1,1]],2:[[0,0],[2,2]],3:[[0,0],[1,1],[2,2]],4:[[0,0],[2,0],[0,2],[2,2]],5:[[0,0],[2,0],[1,1],[0,2],[2,2]],6:[[0,0],[2,0],[0,1],[2,1],[0,2],[2,2]]}[n];
+  g.fillStyle=n===1?'#c8372d':'#1a1a1a';
+  P.forEach(([x,y])=>{g.beginPath();g.arc(32+x*32,32+y*32,n===1?17:10,0,7);g.fill()});
+  const t=new THREE.CanvasTexture(c);return new THREE.MeshStandardMaterial({map:t,roughness:.4});
+}
+/* BoxGeometry 면 순서: +x,-x,+y,-y,+z,-z. 마주보는 면의 합=7 */
+const order=[3,4,1,6,2,5];
+const dice=new THREE.Mesh(new THREE.BoxGeometry(1.5,1.5,1.5),order.map(face));
+dice.position.y=.75;scene.add(dice);
+const floor=new THREE.Mesh(new THREE.CircleGeometry(4,48),new THREE.ShadowMaterial({opacity:0}));
+function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();renderer.render(scene,cam)}
+addEventListener('resize',()=>{resize();draw()});resize();
+/* 각 눈이 위(+y)로 오게 하는 회전 */
+const up={1:[0,0,0],2:[Math.PI/2,0,0],3:[0,0,Math.PI/2],4:[0,0,-Math.PI/2],5:[-Math.PI/2,0,0],6:[Math.PI,0,0]};
+function targetQuat(v){const e=up[v];return new THREE.Quaternion().setFromEuler(new THREE.Euler(e[0],e[1],e[2]))}
+let anim=null;
+function roll3D(v){
+  return new Promise(res=>{
+    const start=performance.now(),dur=1500;
+    const q0=dice.quaternion.clone();
+    const spin=new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI*2*(3+Math.random()*2),Math.PI*2*(2+Math.random()*2),Math.PI*2*(1+Math.random()*2)));
+    const qT=targetQuat(v);
+    const jitter=Math.random()*Math.PI*2;
+    qT.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),jitter));
+    anim=now=>{
+      let t=Math.min((now-start)/dur,1);const e=1-Math.pow(1-t,3);
+      const q=new THREE.Quaternion().identity().slerp(spin,(1-e));
+      dice.quaternion.copy(qT).premultiply(q);
+      /* 던져진 높이: 포물선 + 바운스 */
+      const bounce=Math.abs(Math.sin(t*Math.PI*3))*(1-t)*1.6;
+      dice.position.y=.75+bounce+Math.sin(Math.min(t*2,1)*Math.PI)*.4*(1-t);
+      if(t>=1){dice.quaternion.copy(qT);dice.position.y=.75;anim=null;res()}
+    };
+  });
+}
+(function loop(now){requestAnimationFrame(loop);if(anim)anim(now);renderer.render(scene,cam)})(0);
+/* ---------- 집계 ---------- */
+const rnd=()=>1+Math.floor(Math.random()*6);
+function add(v){counts[v-1]++;total++}
+function render(){
+  $('tot').textContent=total.toLocaleString('ko-KR');
+  $('tb').innerHTML=counts.map((c,i)=>{
+    const p=total?c/total*100:0,d=total?p-100/6:0;
+    return `<tr><td>${i+1}</td><td>${c.toLocaleString('ko-KR')}</td><td>${p.toFixed(1)}%</td><td>${total?(d>=0?'+':'')+d.toFixed(1)+'%p':'-'}</td></tr>`}).join('');
+  draw();
+}
+/* ---------- 차트 (Canvas) ---------- */
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()}
+function draw(){
+  const cv=$('chart'),dpr=Math.min(devicePixelRatio,2),W=cv.clientWidth,H=cv.clientHeight;
+  cv.width=W*dpr;cv.height=H*dpr;const g=cv.getContext('2d');g.scale(dpr,dpr);
+  const pct=counts.map(c=>total?c/total*100:0);
+  const max=$('rng').value==='fix'?100:Math.max(30,Math.ceil(Math.max(...pct)/5)*5);
+  const L=36,B=26,T=14,R=8,pw=W-L-R,ph=H-T-B;
+  g.font='12px sans-serif';g.textBaseline='middle';
+  for(let v=0;v<=max;v+=max>40?10:5){
+    const y=T+ph-v/max*ph;g.strokeStyle=css('--bd');g.beginPath();g.moveTo(L,y);g.lineTo(W-R,y);g.stroke();
+    g.fillStyle=css('--mu');g.textAlign='right';g.fillText(v+'%',L-6,y);
+  }
+  const bw=pw/6;
+  pct.forEach((p,i)=>{
+    const h=p/max*ph,x=L+i*bw+bw*.18,w=bw*.64,y=T+ph-h;
+    g.fillStyle=css('--bar');g.fillRect(x,total&&p===0?y-2:y,w,total&&p===0?2:h);
+    g.fillStyle=css('--tx');g.textAlign='center';g.fillText(i+1,x+w/2,H-B+14);
+    if(total){g.fillStyle=css('--tx');g.fillText(p.toFixed(1)+'%',x+w/2,Math.max(y-8,T+4))}
+  });
+  const ty=T+ph-(100/6)/max*ph;
+  if(!total){g.fillStyle=css('--mu');g.textAlign='center';g.fillText('아직 결과가 없습니다. 주사위를 던져 보세요',L+pw/2,T+ph/2-10)}
+  g.setLineDash([5,4]);g.strokeStyle=css('--ac');g.lineWidth=1.5;g.beginPath();g.moveTo(L,ty);g.lineTo(W-R,ty);g.stroke();g.setLineDash([]);
+  g.fillStyle=css('--ac');g.textAlign='right';g.fillText('이론값 16.7%',W-R-2,ty-9);
+}
+/* ---------- 동작 ---------- */
+function lock(b){busy=b;document.querySelectorAll('button').forEach(x=>{if(x.id!=='rs')x.disabled=b})}
+async function one(){
+  lock(true);const v=rnd(),g1=gen;
+  $('result').textContent='굴리는 중…';prog(0,1);
+  await roll3D(v);if(g1!==gen){lock(false);return}add(v);runs.r1++;showRuns();prog(1,1);$('result').textContent='나온 눈: '+v;render();lock(false);
+}
+async function many(n,key){
+  n=Math.max(1,Math.min(100000,Math.floor(n)||0));lock(true);const gn=gen;
+  let last=1,done=0;const chunk=Math.max(1,Math.ceil(n/40));
+  await new Promise(res=>{
+    (function step(){
+      if(gn!==gen){res();return}
+      const k=Math.min(chunk,n-done);
+      for(let i=0;i<k;i++){last=rnd();add(last)}
+      done+=k;prog(done,n);$('result').textContent=`집계 중… ${done.toLocaleString('ko-KR')} / ${n.toLocaleString('ko-KR')}`;
+      render();
+      if(done<n)requestAnimationFrame(step);else res();
+    })();
+  });
+  if(gn!==gen){lock(false);return}
+  runs[key]++;showRuns();await roll3D(last);if(gn!==gen){lock(false);return}
+  $('result').textContent=`${n.toLocaleString('ko-KR')}회 완료 · 마지막 눈: ${last}`;lock(false);
+}
+$('b1').onclick=one;
+$('b10').onclick=()=>many(10,'r10');
+$('b100').onclick=()=>many(100,'r100');
+$('bn').onclick=()=>many(+$('n').value,'rc');
+$('rng').onchange=draw;
+function prog(d,n){$('pfill').style.width=(n?d/n*100:0)+'%';$('ptxt').textContent=n?`진행 ${d.toLocaleString('ko-KR')} / ${n.toLocaleString('ko-KR')}회 (${Math.round(d/n*100)}%)`:'대기 중'}
+function showRuns(){for(const k in runs)$(k).textContent=runs[k].toLocaleString('ko-KR')}
+$('rs').onclick=()=>{gen++;counts.fill(0);total=0;for(const k in runs)runs[k]=0;showRuns();prog(0,0);lock(false);$('result').textContent='초기화됨. 다시 던져 보세요';render()};
+dice.quaternion.copy(targetQuat(1));
+render();
+})();
+</script>
+</body>
+</html>
