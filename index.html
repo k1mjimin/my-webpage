@@ -176,48 +176,58 @@
     <!-- [section-interests] 관심사 -->
     <section id="section-interests">
       <h2>관심사</h2>
-      <ul>
-        <li>독서</li>
-        <li>방탈출</li>
-        <li>노래 듣기</li>
-        <li>드라마 보기</li>
-      </ul>
-    </section>
+  
+  <!-- 연보라색 알약 버튼 목록 -->
+  <ul class="pill-container">
+    <li>독서</li>
+    <li>방탈출</li>
+    <!-- 클릭 가능한 노래 듣기 알약 버튼 -->
+    <li id="music-toggle-btn" onclick="toggleMusicAlbums()" title="클릭해서 앨범 보기">
+      노래 듣기 ▾
+    </li>
+    <li>드라마 보기</li>
+  </ul>
 
-    <!-- 클릭 시 펼쳐지는 노래 듣기 항목 -->
-      <li>
-        <details>
-          <summary>🎵 노래 듣기</summary>
-          <div class="album-grid">
-            
-            <!-- 앨범 1: 테일러 스위프트 -->
-            <div class="album-card">
-              <div>
-                <img src="images/midnights.jpg" alt="Midnights (3am Edition) 앨범 커버" class="album-cover" />
-                <h4>Midnights (3am Edition)</h4>
-                <p>Taylor Swift (테일러 스위프트)</p>
-              </div>
-              <a href="https://open.spotify.com/album/3lS1y25WAhcqJDATJK70Mq" target="_blank" class="album-link">앨범 들으러 가기 ↗</a>
-            </div>
+  <!-- '노래 듣기' 보라색 칸을 클릭하면 흰색 박스 안쪽에 나타나는 앨범 영역 -->
+  <div id="music-album-drawer">
+    <div class="album-cards-grid">
+      
+      <!-- 앨범 1: 테일러 스위프트 (카드 전체 클릭 시 스포티파이 이동) -->
+      <a href="https://open.spotify.com/album/3lS1y25WAhcqJDATJK70Mq" target="_blank" class="spotify-album-card">
+        <img src="images/midnights.jpg" alt="Midnights (3am Edition) 앨범 커버" />
+        <h4>Midnights (3am Edition)</h4>
+        <p>Taylor Swift</p>
+        <span class="spotify-badge">● Spotify에서 듣기 ↗</span>
+      </a>
 
-            <!-- 앨범 2: 올리비아 로드리고 -->
-            <div class="album-card">
-              <div>
-                <img src="images/or3.jpg" alt="you seem pretty sad for a girl so in love 앨범 커버" class="album-cover" />
-                <h4>you seem pretty sad for a girl so in love</h4>
-                <p>Olivia Rodrigo (올리비아 로드리고)</p>
-              </div>
-              <a href="https://www.oliviarodrigo.com/" target="_blank" class="album-link">앨범 들으러 가기 ↗</a>
-            </div>
+      <!-- 앨범 2: 올리비아 로드리고 (카드 전체 클릭 시 스포티파이 이동) -->
+      <a href="https://open.spotify.com/artist/1McMsnEElThX1knmY4oliG" target="_blank" class="spotify-album-card">
+        <img src="images/or3.jpg" alt="you seem pretty sad for a girl so in love 앨범 커버" />
+        <h4>you seem pretty sad for a girl so in love</h4>
+        <p>Olivia Rodrigo</p>
+        <span class="spotify-badge">● Spotify에서 듣기 ↗</span>
+      </a>
 
-          </div>
-        </details>
-      </li>
+    </div>
+  </div>
 
-      <li class="interest-item">🎬 드라마 보기</li>
-    </ul>
-  </section>
-
+  <script>
+    function toggleMusicAlbums() {
+      const drawer = document.getElementById('music-album-drawer');
+      const btn = document.getElementById('music-toggle-btn');
+      
+      if (drawer.style.display === 'block') {
+        drawer.style.display = 'none';
+        btn.classList.remove('active');
+        btn.innerHTML = '노래 듣기 ▾';
+      } else {
+        drawer.style.display = 'block';
+        btn.classList.add('active');
+        btn.innerHTML = '노래 듣기 ▴';
+      }
+    }
+  </script>
+</section>
 <section id="section-projects">
   <!-- 프로젝트 전용 CSS 스타일 -->
   <style>
